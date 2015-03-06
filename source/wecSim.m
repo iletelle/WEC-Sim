@@ -1,56 +1,64 @@
 %% WEC-Sim run file
-tic; clear; clc;close all; bdclose('all'); clearvars;
+tic; clc; bdclose('all');
 
 %% Initiate the simulation class and specify input file name
 simu = simulationClass;
 
 %% Read input file
-waves.randPreDefined = 0; % Only used for irregular waves. Default is equal to 0; if it equals to 1, the waves pahse is pre-defined
+waves.randPreDefined = 0;
 evalc([simu.inputFile]);
 
-% Start WEC-Sim log
-diary off; if exist('simulation.log','file'); delete('simulation.log'); end; 
+%% Start WEC-Sim log
+diary off; 
+if exist('simulation.log','file') 
+    delete('simulation.log'); 
+end
 diary('simulation.log')
 
-%% Load SimMecahnics file and caluclate the number of bodies
+%% Load SimMecahnics file
 simu.loadSimMechModel(simu.simMechanicsFile);
-simu.numWecBodies = length(body(1,:));
-if exist('constraint') == 1; simu.numConstraints = length(constraint(1,:)); end
-if exist('pto')        == 1; simu.numPtos = length(pto(1,:));               end
 
-%% Set hydrodynamic data, body mass, and body cg for each body in the simulation
-for i = 1:simu.numWecBodies
-    if simu.hydroDataWamit == 0 % this is a hack to deal with simulations that use mutiple WAMIT runs with one body in each run
-       body(i).setHydroData(i,simu);
-    else
-       body(i).setHydroData(1,simu);
-    end
-    body(i).setMass(simu);
-    body(i).setCg;
-    body(i).setMomOfInertia;
-    body(i).setGeom;
+%% Count bodies, constraints, and PTOs
+simu.numWecBodies = length(body(1,:));
+if exist('constraint','var') == 1
+    simu.numConstraints = length(constraint(1,:));
+end
+if exist('pto','var') == 1
+    simu.numPtos = length(pto(1,:));
 end
 
-%% Check WAMIT data
+%% Check hydro data
 checkBem(body)
 
 %% Wave Setup
 waveSetup
 
 %% HydroForce Pre-Processing
-hydroForcePre(body,waves,simu);
+for kk = 1:simu.numWecBodies
+    body(kk).hydroForcePre(waves.w,simu.CIkt,simu.numFreq,simu.dt,simu.rho,waves.type);
+end
 
 %% Output All the Simulation and Model Setting
 listSimulationParameters;
-listBodyInfo;
+%bodies]
+fprintf('\nList of Body: ');
+fprintf('Number of Bodies = %u \n',simu.numWecBodies)
+for i = 1:simu.numWecBodies
+    body(i).listBodyInfo
+end
+%ptos and constraints
 listPtoConstraints;
 
 %% Run Simulation
 fprintf(['\nSimulating the WEC device defined in the SimMechanics '...
    'model %s...   \n'],simu.simMechanicsFile)
-adjustMassMatrix(body);
+for iBod = 1:simu.numWecBodies
+    body(iBod).adjustMassMatrix;
+end
 sim(simu.simMechanicsFile);
-restoreMassMatrix(body);
+for iBod = 1:simu.numWecBodies
+    body(iBod).restoreMassMatrix;
+end
 fprintf('\n')
 
 %% Post processing and Saving Results

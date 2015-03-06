@@ -14,36 +14,32 @@
 % limitations under the License.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set Wave Environment
+
 switch waves.type
     case {'noWave'}       % No Wave
             if strcmp(waves.noWaveHydrodynamicCoeffT,'NOT DEFINED')
                 error('The noWaveHydrodynamicCoeffT variable must be defined when using the "noWave" wave type');
             end
             waves = waveClass(waves.type,0,waves.noWaveHydrodynamicCoeffT,simu); %H is equal to 0.
-            waves.bemFreq    = body(1).hydro.data.frequency;    % Frequencies from WAMIT
-            waves.waterDepth = body(1).hydro.data.waterDepth;   % Water Depth from WAMIT
             [waves.waveAmpTime,waves.A,waves.w]=wavesReg(waves,simu);
      case {'noWaveCIC'}       % No WaveCIC
             waves = waveClass(waves.type,0,0,simu); %H is equal to 0.
-            waves.bemFreq    = body(1).hydro.data.frequency;    % Frequencies from WAMIT
-            waves.waterDepth = body(1).hydro.data.waterDepth;   % Water Depth from WAMIT
             [waves.waveAmpTime,waves.A,waves.w]=wavesReg(waves,simu);
             waves.w = 0;                            %w is equal to 0 to avoid infinity             
     case {'regular','regularCIC'}        % Regular Waves
             waves = waveClass(waves.type,waves.H,waves.T,simu);
-            waves.bemFreq    = body(1).hydro.data.frequency;    % Frequencies from WAMIT
-            waves.waterDepth = body(1).hydro.data.waterDepth;   % Water Depth from WAMIT
             [waves.waveAmpTime,waves.A,waves.w]=wavesReg(waves,simu);
     case {'irregular'}      % Irregular Waves
             waves = waveClass(waves.type,waves.H,waves.T,simu,waves.spectrumType,waves.randPreDefined,'none');
-            waves.bemFreq    = body(1).hydro.data.frequency;    % Frequencies from WAMIT
-            waves.waterDepth = body(1).hydro.data.waterDepth;   % Water Depth from WAMIT
             [waves.waveAmpTime,waves.A,waves.w]=wavesIrreg(waves,simu);
     case {'irregularImport'}      % Irregular Waves
             waves = waveClass(waves.type,0,0,simu,'Imported',waves.randPreDefined,waves.spectrumDataFile);
-            waves.bemFreq    = body(1).hydro.data.frequency;    % Frequencies from WAMIT
-            waves.waterDepth = body(1).hydro.data.waterDepth;   % Water Depth from WAMIT
             [waves.waveAmpTime,waves.A,waves.w]=wavesIrreg(waves,simu);
     otherwise
             error('Unexpected wave environment type setting');
 end
+
+waves.bemFreq    = body(1).hydroData.simulation_parameters.w;    % Frequencies from WAMIT
+waves.waterDepth = body(1).hydroData.simulation_parameters.wDepth;   % Water Depth from WAMIT
+
+

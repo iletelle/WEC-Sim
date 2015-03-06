@@ -21,29 +21,30 @@ output=struct;
 output.bodies=struct;
 L=length(body);
 for i=1:L
-    eval(['output.bodies(' num2str(i) ').name=''' body(i).name ''';']); 
+    eval(['output.bodies(' num2str(i) ').name=''' ...
+        body(i).hydroData.properties.name ''';']); 
     eval(['output.bodies(' num2str(i) ').time = '... 
-        body(i).name '_out.time;']);
+        body(i).hydroData.properties.name '_out.time;']);
     eval(['output.bodies(' num2str(i) ').position = '... 
-        body(i).name '_out.signals.values(:,1:6);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,1:6);']);
     eval(['output.bodies(' num2str(i) ').velocity = '... 
-        body(i).name '_out.signals.values(:,7:12);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,7:12);']);
     eval(['output.bodies(' num2str(i) ').acceleration = '... 
-        body(i).name '_out.signals.values(:,13:18);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,13:18);']);
     
     eval(['output.bodies(' num2str(i) ').forceTotal = '... 
-        body(i).name '_out.signals.values(:,19:24);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,19:24);']);
     eval(['output.bodies(' num2str(i) ').forceExcitation = '... 
-        body(i).name '_out.signals.values(:,25:30);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,25:30);']);
     eval(['output.bodies(' num2str(i) ').forceRadiation = '... 
-        body(i).name '_out.signals.values(:,31:36);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,31:36);']);
     eval(['output.bodies(' num2str(i) ').forceRestoring = '... 
-        body(i).name '_out.signals.values(:,37:42);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,37:42);']);
     eval(['output.bodies(' num2str(i) ').forceViscous = '... 
-        body(i).name '_out.signals.values(:,43:48);']);
+        body(i).hydroData.properties.name '_out.signals.values(:,43:48);']);
     eval(['output.bodies(' num2str(i) ').forceMooring = '... 
-        body(i).name '_out.signals.values(:,49:54);']);
-    eval(['clear ' body(i).name '_out;']);
+        body(i).hydroData.properties.name '_out.signals.values(:,49:54);']);
+    eval(['clear ' body(i).hydroData.properties.name '_out;']);
 end
 
 %% PTOs Outputs

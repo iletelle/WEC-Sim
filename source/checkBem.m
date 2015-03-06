@@ -14,21 +14,20 @@
 % limitations under the License.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [] = checkBEM(body)
+function [] = checkBem(body)
 % BEM check for correct format
 
 for ii = 1:length(body)
-    if length(body(1).hydro.data.frequency) ~= ...
-            length(body(ii).hydro.data.frequency)
+    if length(body(1).hydroData.simulation_parameters.w) ~= length(body(ii).hydroData.simulation_parameters.w)
        error(['BEM simulations for each body must have the same number '...
            'of frequencies'])
     else
-       for jj = 1:length(body(1).hydro.data.frequency)
-           if body(1).hydro.data.frequency(jj) ~= ...
-                   body(ii).hydro.data.frequency(jj)
-              error(['BEM simulations must be run with the same '...
-                  'frequencies.'])
-           end; clear jj;
+       for jj = 1:length(body(1).hydroData.simulation_parameters.w)
+           if body(1).hydroData.simulation_parameters.w(jj) ~= body(ii).hydroData.simulation_parameters.w(jj)
+              error('BEM simulations must be run with the same frequencies.')
+           end
+           clear jj;
        end
     end                 
-end; clear ii;
+end 
+clear ii;
