@@ -60,11 +60,9 @@ classdef bodyClass<handle
     end
 
     methods
-
         function obj = bodyClass(filename,iBod) 
         % Initilization function
         % Read in hdf5 file
-            fprintf('Initializing the Body Class... \n')
             if exist(filename,'file') == 0
                 error('The hdf5 file %s does not exist',file)                
             end
@@ -85,16 +83,16 @@ classdef bodyClass<handle
                     obj = regExcitation(obj,w);
                     obj = constAddedMassAndDamping(obj,w,CIkt);
                 case {'noWaveCIC','regularCIC'}
-                    obj = regExcitation(obj,waves);
+                    obj = regExcitation(obj,w);
                     obj = irfInfAddedMassAndDamping(obj,numFreq,CIkt,dt);
                 case {'irregular','irregularImport'}
                     obj = irrExcitation(obj,w,numFreq);
-                    obj = irfInfAddedMassAndDamping(obj,simu);
+                    obj = irfInfAddedMassAndDamping(obj,numFreq,CIkt,dt);
                 otherwise
-                    error('Only noWave, noWaveCIC, regular, regularCIC, irregular, and irregularImport waves are supported at this time')
+                    error('Unexpected wave environment type setting')
             end
             
-            %functions for hydroForcePre
+            %internal functions for hydroForcePre
             function bodyTemp = regExcitation(bodyTemp,w)
                 bodyTemp.hydroForce.fExt.re=zeros(1,6);
                 bodyTemp.hydroForce.fExt.im=zeros(1,6);
@@ -131,38 +129,42 @@ classdef bodyClass<handle
                 end
                 bodyTemp.hydroForce.irka=zeros(CIkt+1,6,6);
                 bodyTemp.hydroForce.irkb=zeros(CIkt+1,6,6);
+                bodyTemp.hydroForce.ssRadf.A = zeros(6*kk,6*kk);
+                bodyTemp.hydroForce.ssRadf.B = zeros(6*kk,6*kk);
+                bodyTemp.hydroForce.ssRadf.C = zeros(6,6*kk);
+                bodyTemp.hydroForce.ssRadf.D = zeros(6,6*kk);
             end
             
-        function bodyTemp = irfInfAddedMassAndDamping(bodyTemp,numFreq, CIkt, dt)
-            iBod = bodyTemp.hydroData.properties.bodyNumber;                
-            WFQSt=min(bodyTemp.hydroData.simulation_parameters.w);
-            WFQEd=max(bodyTemp.hydroData.simulation_parameters.w);
-            df  = (WFQEd-WFQSt)/(numFreq-1);
-            w2 = WFQSt:df:WFQEd;
-            fDamping  =zeros(numFreq,6,6);
-            for j = 1:numFreq
-                for ii=1:6
-                    for jj=1:6
-                        kk = jj + (iBod-1) * 6;
-                        tmp = reshape(bodyTemp.hydroData.hydro_coeffs.rd.all(ii,kk,:),1,length(bodyTemp.hydroData.simulation_parameters.T));
-                        fDamping(j,ii,jj) = interp1(bodyTemp.hydroData.simulation_parameters.w,tmp,w2(j),'linear');
+            function bodyTemp = irfInfAddedMassAndDamping(bodyTemp,numFreq,CIkt,dt)
+                iBod = bodyTemp.hydroData.properties.bodyNumber + 1;                
+                WFQSt=min(bodyTemp.hydroData.simulation_parameters.w);
+                WFQEd=max(bodyTemp.hydroData.simulation_parameters.w);
+                df  = (WFQEd-WFQSt)/(numFreq-1);
+                w2 = WFQSt:df:WFQEd;
+                fDamping  =zeros(numFreq,6,6);
+                for j = 1:numFreq
+                    for ii=1:6
+                        for jj=1:6
+                            kk = jj + (iBod-1) * 6;
+                            tmp = reshape(bodyTemp.hydroData.hydro_coeffs.rd.all(ii,kk,:),1,length(bodyTemp.hydroData.simulation_parameters.T));
+                            fDamping(j,ii,jj) = interp1(bodyTemp.hydroData.simulation_parameters.w,tmp,w2(j),'linear');
+                        end
+                        clear tmp
                     end
-                    clear tmp
-                end
-            end    
-            bodyTemp.hydroForce.irkb=zeros(CIkt+1,6,6);
-            for kt=1:CIkt+1;
-                t = dt*(kt-1);
-                for ii=1:6
-                    for jj=1:6
-                        tmp=fDamping(:,ii,jj).*cos(w2(:)*t);
-                        bodyTemp.hydroForce.irkb(kt,ii,jj) = 2./pi*trapz(w2,tmp);
+                end    
+                bodyTemp.hydroForce.irkb=zeros(CIkt+1,6,6);
+                for kt=1:CIkt+1;
+                    t = dt*(kt-1);
+                    for ii=1:6
+                        for jj=1:6
+                            tmp=fDamping(:,ii,jj).*cos(w2(:)*t);
+                            bodyTemp.hydroForce.irkb(kt,ii,jj) = 2./pi*trapz(w2,tmp);
+                        end
                     end
-                end
-                clear tmp
-            end
-            bodyTemp.hydroForce.fAddedMass=bodyTemp.hydroData.hydro_coeffs.am.inf(:,1+(iBod-1)*6:6+(iBod-1)*6);
-            bodyTemp.hydroForce.fDamping=zeros(6,6);    
+                end; clear tmp
+                bodyTemp.hydroForce.fAddedMass=bodyTemp.hydroData.hydro_coeffs.am.inf(:,1+(iBod-1)*6:6+(iBod-1)*6);
+                bodyTemp.hydroForce.fDamping=zeros(6,6);
+                
             end
         end
 
@@ -193,74 +195,15 @@ classdef bodyClass<handle
            obj.hydroForce.fAddedMass = obj.hydroForce.storage.fAddedMass;
         end
         
-        function listBodyInfo(obj)
+        function listInfo(obj)
         % Listing Body Info
             fprintf('\n\t***** Body Number %G, Name: %s *****\n',obj.hydroData.properties.bodyNumber,obj.hydroData.properties.name)
             fprintf('\tBody CG                          (m) = [%G,%G,%G]\n',obj.hydroData.properties.cg)
             fprintf('\tBody Mass                       (kg) = %G \n',obj.mass);
             fprintf('\tBody Diagonal MOI              (kgm2)= [%G,%G,%G]\n',obj.momOfInertia)
         end
-    
-        function other(~)
-%         function obj = setMooring(obj,type,inputFile)
-%         %Setup mooring forces for each body        
-%                  obj.mooring.type = type;
-%                  obj.mooring.inputFile = inputFile;
-%                  switch obj.mooring.type
-%                         case 'linear'
-%                         fprintf('\tReading linear mooring coefficients\n')
-%                         run(obj.mooring.inputFile);
-%                         obj.mooring.c = c;
-%                         obj.mooring.k = k;
-%                         obj.mooring.preTension = preTension;
-%                         otherwise
-%                         error('only linear mooring systems are supported at this time')
-%                  end
-%         end   
-
-
-%         function obj = setGeom(obj)
-%         % Setup the device geometry file
-%                  if exist(obj.geometry,'file') == 0
-%                      error('The geometry file %s does not exist',file)                
-%                  else
-%                      obj.geom.file = obj.geometry;
-%                  end                        
-%                  [obj.geom.dir,obj.geom.filename,obj.geom.fileExtension]... 
-%                  = fileparts(obj.geom.file); 
-%         end
-
-%         function obj=offsetGeom(obj,offset)
-%         % Function to move the position of the STL
-%             fprintf('Offsetting STL geometry by the center of gravity from WAMIT...\n')
-%             obj.geom.Vertices(:,1) = obj.geom.Vertices(:,1) + offset(1);
-%             obj.geom.Vertices(:,2) = obj.geom.Vertices(:,2) + offset(2);
-%             obj.geom.Vertices(:,3) = obj.geom.Vertices(:,3) + offset(3);
-%         end
-
-%         function obj = setGeom(obj)
-%         % Setup the device geometry file
-%             if exist(obj.geometryFile,'file') == 0
-%                 error('The geometry file %s does not exist',file)                
-%             end
-%         end
-
-%         function obj = setMomOfInertia(obj)
-%         % Set body moment inertia properties       
-%              if length(obj.momOfInertia) ~= 3
-%                  error('The moment of inertia must be a vector in the form [Ixx Iyy Izz]')
-%              end
-%         end   
         
-%         function obj = setCg(obj)
-%         % Set the body CG        
-%              if length(obj.cg) ~= 3
-%                  error('The center of gravity must be a vector in the form [x y z]')
-%              end
-%         end
-
-        end %fixme - delete before release
-
+        function checkProperties(obj)
+        end
     end
-
 end

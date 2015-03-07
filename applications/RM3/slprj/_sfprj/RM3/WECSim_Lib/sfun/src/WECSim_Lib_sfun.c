@@ -73,10 +73,10 @@ unsigned int sf_WECSim_Lib_process_check_sum_call( int nlhs, mxArray * plhs[],
       machineName[(sizeof(machineName)/sizeof(char)-1)] = '\0';
       if (!strcmp(machineName,"WECSim_Lib")) {
         if (nrhs==3) {
-          ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(4080211519U);
-          ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(1529601867U);
-          ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(134437079U);
-          ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(1950773065U);
+          ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(327639517U);
+          ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(3987312969U);
+          ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(2554780204U);
+          ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(2434135580U);
         } else if (nrhs==4) {
           unsigned int chartFileNumber;
           chartFileNumber = (unsigned int)mxGetScalar(prhs[3]);
@@ -149,7 +149,7 @@ unsigned int sf_WECSim_Lib_autoinheritance_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 3:
       {
-        if (strcmp(aiChksum, "MHVGmpwa3IwQHXPSnFXA4G") == 0) {
+        if (strcmp(aiChksum, "lkf9GDdNWM51qk5gVyzRaC") == 0) {
           extern mxArray *sf_c3_WECSim_Lib_get_autoinheritance_info(void);
           plhs[0] = sf_c3_WECSim_Lib_get_autoinheritance_info();
           break;
@@ -265,7 +265,7 @@ unsigned int sf_WECSim_Lib_third_party_uses_info( int nlhs, mxArray * plhs[],
     switch (chartFileNumber) {
      case 3:
       {
-        if (strcmp(tpChksum, "KJqw3QQg3EWXtxaJ60UUQB") == 0) {
+        if (strcmp(tpChksum, "MG8l1Haken2zKYlRbbmBhG") == 0) {
           extern mxArray *sf_c3_WECSim_Lib_third_party_uses_info(void);
           plhs[0] = sf_c3_WECSim_Lib_third_party_uses_info();
           break;
@@ -311,7 +311,7 @@ unsigned int sf_WECSim_Lib_jit_fallback_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 3:
       {
-        if (strcmp(tpChksum, "KJqw3QQg3EWXtxaJ60UUQB") == 0) {
+        if (strcmp(tpChksum, "MG8l1Haken2zKYlRbbmBhG") == 0) {
           extern mxArray *sf_c3_WECSim_Lib_jit_fallback_info(void);
           plhs[0] = sf_c3_WECSim_Lib_jit_fallback_info();
           break;
@@ -357,7 +357,7 @@ unsigned int sf_WECSim_Lib_updateBuildInfo_args_info( int nlhs, mxArray * plhs[]
     switch (chartFileNumber) {
      case 3:
       {
-        if (strcmp(tpChksum, "KJqw3QQg3EWXtxaJ60UUQB") == 0) {
+        if (strcmp(tpChksum, "MG8l1Haken2zKYlRbbmBhG") == 0) {
           extern mxArray *sf_c3_WECSim_Lib_updateBuildInfo_args_info(void);
           plhs[0] = sf_c3_WECSim_Lib_updateBuildInfo_args_info();
           break;
@@ -391,7 +391,7 @@ void sf_WECSim_Lib_get_post_codegen_info( int nlhs, mxArray * plhs[], int nrhs,
   switch (chartFileNumber) {
    case 3:
     {
-      if (strcmp(tpChksum, "KJqw3QQg3EWXtxaJ60UUQB") == 0) {
+      if (strcmp(tpChksum, "MG8l1Haken2zKYlRbbmBhG") == 0) {
         extern mxArray *sf_c3_WECSim_Lib_get_post_codegen_info(void);
         plhs[0] = sf_c3_WECSim_Lib_get_post_codegen_info();
         return;

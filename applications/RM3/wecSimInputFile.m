@@ -1,4 +1,6 @@
 % Simulation Data
+
+simu = simulationClass();
 simu.startTime=0;                           % Simulation Start Time [s]
 simu.endTime=400;                           % Simulation End Time [s]
 simu.dt = 0.1;                              % Simulation Delta_Time [s]
@@ -8,11 +10,12 @@ simu.mode='normal';                         % Specify Simulation Mode
                                                 % /rapid-accelerator)
 simu.explorer = 'on';                         % Turn SimMechanics Explorer 
                                                 % (on/off)
+simu.convCalc = 0;
 
 % Wave Information
+waves = waveClass('regularCIC');
 waves.H = 2.5;                              % Wave Height [m]
 waves.T = 8;                                % Wave Period [s]
-waves.type = 'regular';                     % Specify Type of Waves 
 
 % % Wave Information: Irregular Waves using PM Spectrum
 % waves.H = 2.5;                              % Wave Height [m]

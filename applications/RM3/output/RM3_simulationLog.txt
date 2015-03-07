@@ -1,9 +1,5 @@
-Initializing the Wave Class...
 
-Wave Environment: 
-	Wave Type                            = Regular Waves (Sinusoidal Steady-State)
-	Wave Height H                    (m) = 2.5
-	Wave Period T                  (sec) = 8
+WEC-Sim Pre-processing ...   
 
 WEC-Sim Simulation Settings:
 	Time Marching Solver                 = Fourth-Order Runge-Kutta Formula 
@@ -11,7 +7,13 @@ WEC-Sim Simulation Settings:
 	End Time                       (sec) = 400
 	Time Step Size                 (sec) = 0.1
 	Ramp Function Time             (sec) = 100
+	Convolution Integral Interval  (sec) = 60
 	Total Number of Time Step            = 4000 
+
+Wave Environment: 
+	Wave Type                            = Regular Waves (Convolution Integral Calculation)
+	Wave Height H                    (m) = 2.5
+	Wave Period T                  (sec) = 8
 
 List of Body: Number of Bodies = 2 
 
@@ -36,5 +38,25 @@ List of Constraint(s): Number of Constraints = 1
 	***** Constraint Name: Constraint1 *****
 
 Simulating the WEC device defined in the SimMechanics model RM3.slx...   
+[Warning: The specified delay time for
+'RM3/Rigid Body/Wave Radiation Forces
+Calculation/Transport Delay' is
+smaller than the step size of the
+fixed-step solver. This may cause
+simulation results to be inaccurate.
+Consider decreasing the step size of
+the solver to improve accuracy] 
+[> In <a href="matlab: opentoline('C:\Users\cmichel\Documents\GitHub\WEC-Sim-WEC-Sim\source\wecSim.m',53,1)">wecSim at 53</a>
+  In <a href="matlab: opentoline('C:\Users\cmichel\Documents\GitHub\WEC-Sim-WEC-Sim\applications\RM3\runTestCase.m',25,1)">runTestCase at 25</a>] 
+[Warning: The specified delay time for
+'RM3/Rigid Body1/Wave Radiation Forces
+Calculation/Transport Delay' is
+smaller than the step size of the
+fixed-step solver. This may cause
+simulation results to be inaccurate.
+Consider decreasing the step size of
+the solver to improve accuracy] 
+[> In <a href="matlab: opentoline('C:\Users\cmichel\Documents\GitHub\WEC-Sim-WEC-Sim\source\wecSim.m',53,1)">wecSim at 53</a>
+  In <a href="matlab: opentoline('C:\Users\cmichel\Documents\GitHub\WEC-Sim-WEC-Sim\applications\RM3\runTestCase.m',25,1)">runTestCase at 25</a>] 
 
-Elapsed time is 24.498905 seconds.
+Elapsed time is 135.274662 seconds.

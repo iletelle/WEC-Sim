@@ -33,6 +33,11 @@ classdef simulationClass<handle
         rampT               = 100                                          % Ramp time for wave forcing (default = 100 s)
         domainSize          = 200                                          % Size of free surface and seabed. This variable is only used for visualization (default = 200 m)
         CITime              = 60                                           % Convolution integral time (default = 60 s)
+        convCalc            = 0
+        ssReal              = 'TD'
+        ssImport            = [];
+        ssMax               = 10
+        R2Thresh            = 0.95
         numFreq             = 201                                          % Number of wave frequencies for interpolation (default = 201) 
         mode                = 'normal'                                     %'normal','accelerator','rapid-accelerator' (default = 'normal') 
         solver              = 'ode4'                                       % PDE solver used by the Simulink/SimMechanics simulation (default = 'ode4')
