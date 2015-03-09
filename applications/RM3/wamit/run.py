@@ -17,7 +17,8 @@ w = wio.WamitOutput(outFile='rm3.out')
 
 # Calculate IRF and plot
 for i in xrange(2):
-	w.data[i].calcIRF(t_end=100., dt = 0.1, dw=0.05)
+	#w.data[i].calcIRF(t_end=100., dt = 0.1, dw=0.01)
+	w.data[i].calcIRF(n_t = 10000)
 	w.data[i].plotIRF([[0,0],[2,2]]	)
 	w.data[i].plotAddedMassAndDamping([[0,0],[2,2]])
 

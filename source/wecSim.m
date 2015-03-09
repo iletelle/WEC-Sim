@@ -6,8 +6,7 @@ diary('simulation.log')
 
 
 %% Read input file
-evalc([simu.inputFile]);
-
+evalc('wecSimInputFile');
 
 %% Setup simulation and load simMechanics file
 fprintf('\nWEC-Sim Pre-processing ...   \n')
@@ -32,30 +31,63 @@ end; clear ii;
 
 
 %% HydroForces Pre-Processing: Wave Setup & HydroForcePre
-waves.waveSetup(simu.numFreq, body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt); 
+waves.waveSetup(simu.numFreq, body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
 for kk = 1:simu.numWecBodies
-    body(kk).hydroForcePre(waves.w,simu.CIkt,simu.numFreq,simu.dt,simu.rho,waves.type);
-end
+    body(kk).hydroForcePre(waves.w,simu.CIkt,simu.numFreq,simu.dt,simu.rho,waves.type,kk);
+end; clear kk
 
 %% Output All the Simulation and Model Setting
 listSimulationParameters;
+
 waves.listInfo
+
 fprintf('\nList of Body: ');
 fprintf('Number of Bodies = %u \n',simu.numWecBodies)
 for i = 1:simu.numWecBodies
     body(i).listInfo
+end;  clear i
+
+fprintf('\nList of PTO(s): ');
+if (exist('pto','var') == 0)
+    fprintf('No PTO in the system\n')
+else
+    fprintf('Number of PTOs = %G \n',length(pto(1,:)))
+    for i=1:simu.numPtos
+        pto(i).listInfo
+    end; clear i
 end
-listPtoConstraints;
+
+fprintf('\nList of Constraint(s): ');
+if (exist('constraint','var') == 0)
+    fprintf('No Constraint in the system\n')
+else
+    fprintf('Number of Constraints = %G \n',length(constraint(1,:)))
+    for i=1:simu.numConstraints
+        constraint(i).listInfo
+    end; clear i
+end
 
 %% Run Simulation
 fprintf('\nSimulating the WEC device defined in the SimMechanics model %s...   \n',simu.simMechanicsFile)
-for iBod = 1:simu.numWecBodies; body(iBod).adjustMassMatrix; end
+for iBod = 1:simu.numWecBodies; body(iBod).adjustMassMatrix; end; clear iBod
+tDelayWarning = 'Simulink:blocks:TDelayTimeTooSmall';
+warning('off',tDelayWarning);
+if simu.rampT == 0; simu.rampT = 10e-8; end
+if simu.explorer == 'on' &  isfloat(waves.waterDepth) ~= 1
+    waves.waterDepth = 200;
+    warning('Invalid water depth given. waves.waterDepth set to 200m for vizualisation.')
+end
 sim(simu.simMechanicsFile);
-for iBod = 1:simu.numWecBodies; body(iBod).restoreMassMatrix; end
+if simu.rampT == 10e-8; simu.rampT = 0; end
+postResponse
+for iBod = 1:simu.numWecBodies
+    body(iBod).restoreMassMatrix
+    body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
+    output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
+end; clear iBod
 fprintf('\n')
 
 %% Post processing and Saving Results
-postResponse
 if exist('userDefinedFunctions.m','file') == 2
     userDefinedFunctions;                
 end
