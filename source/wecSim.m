@@ -8,12 +8,11 @@ diary('simulation.log')
 %% Read input file
 evalc('wecSimInputFile');
 
-%% Setup simulation and load simMechanics file
+%% Setup simulation
 fprintf('\nWEC-Sim Pre-processing ...   \n')
 simu.numWecBodies = length(body(1,:));
 if exist('constraint','var') == 1; simu.numConstraints = length(constraint(1,:)); end
 if exist('pto','var') == 1; simu.numPtos = length(pto(1,:)); end
-simu.loadSimMechModel(simu.simMechanicsFile);
 
 
 %% Check that the hydro data for each body is given for the same frequencies
@@ -67,8 +66,9 @@ else
     end; clear i
 end
 
-%% Run Simulation
+%% Load simMechanics file & Run Simulation
 fprintf('\nSimulating the WEC device defined in the SimMechanics model %s...   \n',simu.simMechanicsFile)
+simu.loadSimMechModel(simu.simMechanicsFile);
 for iBod = 1:simu.numWecBodies; body(iBod).adjustMassMatrix; end; clear iBod
 tDelayWarning = 'Simulink:blocks:TDelayTimeTooSmall';
 warning('off',tDelayWarning); clear tDelayWarning

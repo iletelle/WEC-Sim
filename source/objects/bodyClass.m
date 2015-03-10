@@ -202,15 +202,13 @@ classdef bodyClass<handle
             iBod = obj.hydroData.properties.bodyNumber + 1;                
             irfk = obj.hydroData.hydro_coeffs.irf.K;
             irft = obj.hydroData.hydro_coeffs.irf.t;
-            for kt=1:CIkt+1;
-                t = dt*(kt-1);
-                for ii=1:6
-                    for jj=1:6
-                        kk = jj + (iBod-1) * 6;
-                        obj.hydroForce.irkb(kt,ii,kk) = interp1(irft,squeeze(irfk(ii,kk,:)),t,'linear');
-                    end
+            CTTime = 0:dt:CIkt*dt;
+            for ii=1:6
+                for jj=1:6
+                    kk = jj + (iBod-1) * 6;
+                    obj.hydroForce.irkb(:,ii,kk) = interp1(irft,squeeze(irfk(ii,kk,:)),CTTime,'linear');
                 end
-            end; clear tmp
+            end
             obj.hydroForce.fAddedMass=obj.hydroData.hydro_coeffs.am.inf(:,1+(iBod-1)*6:6+(iBod-1)*6);
             obj.hydroForce.fDamping=zeros(6,6);
         end

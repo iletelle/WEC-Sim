@@ -44,7 +44,7 @@ classdef simulationClass<handle
         explorer            = 'on'                                         % SimMechanics Explorer 'on' or 'off' (default = 'on'
         rho                 = 1000                                         % Density of water (default = 1000 kg/m^3)
         g                   = 9.81                                         % Acceleration due to gravity (default = 9.81 m/s)
-                    
+        
     end
     properties (Dependent)
         maxIt                                                              % Total number of simulation time steps (default = dependent)        CIkt                                                               % Calculate the number of convolution integral timesteps (default = dependent)
