@@ -6,7 +6,7 @@ WEC-Sim Simulation Settings:
 	Start Time                     (sec) = 0
 	End Time                       (sec) = 400
 	Time Step Size                 (sec) = 0.1
-	Ramp Function Time             (sec) = 0
+	Ramp Function Time             (sec) = 100
 	Convolution Integral Interval  (sec) = 60
 	Total Number of Time Step            = 4000 
 
@@ -38,5 +38,9 @@ List of Constraint(s): Number of Constraints = 1
 	***** Constraint Name: Constraint1 *****
 
 Simulating the WEC device defined in the SimMechanics model RM3.slx...   
+### Generating code for Physical Networks associated with solver block 'RM3/Global Reference Frame/Solver Configuration' ... 
+done.
+### Building the rapid accelerator target for model: RM3
+### Successfully built the rapid accelerator target for model: RM3
 
-Elapsed time is 623.838060 seconds.
+Elapsed time is 64.753970 seconds.

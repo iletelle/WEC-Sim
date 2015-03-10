@@ -7,7 +7,7 @@ CPU = AMD64
 
 MACHINE     = WECSim_Lib
 TARGET      = sfun
-CHART_SRCS   = c3_WECSim_Lib.c c8_WECSim_Lib.c
+CHART_SRCS   = c3_7vqb7o7CaUJzbPKhFMyx3F_WECSim_Lib.c c3_GyOgjRjuRYRTvtCoMdJDwH_WECSim_Lib.c c8_WECSim_Lib.c
 MACHINE_SRC  = WECSim_Lib_sfun.c
 MACHINE_REG = 
 MAKEFILE    = WECSim_Lib_sfun.mak

@@ -4,10 +4,10 @@ simu = simulationClass();
 simu.endTime=400;
 simu.dt = 0.1;
 simu.simMechanicsFile = 'RM3.slx';        
-simu.mode='normal';
-simu.explorer = 'on';
+simu.mode='rapid-accelerator';
+simu.explorer = 'off';
 simu.convCalc = 0;
-simu.rampT = 0;
+simu.rampT = 100;
 
 %% Wave Information
 %Regular Waves 

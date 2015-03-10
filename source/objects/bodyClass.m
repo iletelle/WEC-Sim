@@ -70,10 +70,10 @@ classdef bodyClass<handle
                     obj.constAddedMassAndDamping(w,CIkt);
                 case {'noWaveCIC','regularCIC'}
                     obj.regExcitation(w);
-                    obj.irfInfAddedMassAndDamping(numFreq,CIkt,dt);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt);
                 case {'irregular','irregularImport'}
                     obj.irrExcitation(w,numFreq);
-                    obj.irfInfAddedMassAndDamping(numFreq,CIkt,dt);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt);
                 otherwise
                     error('Unexpected wave environment type setting')
             end
@@ -195,32 +195,19 @@ classdef bodyClass<handle
             obj.hydroForce.ssRadf.D = zeros(6,6*kk);
         end
         
-        function irfInfAddedMassAndDamping(obj,numFreq,CIkt,dt)        
+        function irfInfAddedMassAndDamping(obj,CIkt,dt)%(obj,numFreq,CIkt,dt)        
         % Used by hydroForcePre
         % Added mass at infinite frequency
         % Convolution integral raditation damping
             iBod = obj.hydroData.properties.bodyNumber + 1;                
-            WFQSt=min(obj.hydroData.simulation_parameters.w);
-            WFQEd=max(obj.hydroData.simulation_parameters.w);
-            df  = (WFQEd-WFQSt)/(numFreq-1);
-            w2 = WFQSt:df:WFQEd;
-            fDamping  =zeros(numFreq,6,6);
-            for j = 1:numFreq
-                for ii=1:6
-                    for jj=1:6
-                        kk = jj + (iBod-1) * 6;
-                        tmp = reshape(obj.hydroData.hydro_coeffs.rd.all(ii,kk,:),1,length(obj.hydroData.simulation_parameters.T));
-                        fDamping(j,ii,jj) = interp1(obj.hydroData.simulation_parameters.w,tmp,w2(j),'linear');
-                    end
-                end
-            end; clear tmp    
-            obj.hydroForce.irkb=zeros(CIkt+1,6,6);
+            irfk = obj.hydroData.hydro_coeffs.irf.K;
+            irft = obj.hydroData.hydro_coeffs.irf.t;
             for kt=1:CIkt+1;
                 t = dt*(kt-1);
                 for ii=1:6
                     for jj=1:6
-                        tmp=fDamping(:,ii,jj).*cos(w2(:)*t);
-                        obj.hydroForce.irkb(kt,ii,jj) = 2./pi*trapz(w2,tmp);
+                        kk = jj + (iBod-1) * 6;
+                        obj.hydroForce.irkb(kt,ii,kk) = interp1(irft,squeeze(irfk(ii,kk,:)),t,'linear');
                     end
                 end
             end; clear tmp

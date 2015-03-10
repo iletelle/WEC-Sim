@@ -36,6 +36,45 @@ extern void sf_RM3_uses_exported_functions(int nlhs, mxArray * plhs[], int nrhs,
   plhs[0] = mxCreateLogicalScalar(0);
 }
 
+unsigned int sf_RM3_process_testpoint_info_call( int nlhs, mxArray * plhs[], int
+  nrhs, const mxArray * prhs[] )
+{
+
+#ifdef MATLAB_MEX_FILE
+
+  char commandName[32];
+  char machineName[128];
+  if (nrhs < 3 || !mxIsChar(prhs[0]) || !mxIsChar(prhs[1]))
+    return 0;
+
+  /* Possible call to get testpoint info. */
+  mxGetString(prhs[0], commandName,sizeof(commandName)/sizeof(char));
+  commandName[(sizeof(commandName)/sizeof(char)-1)] = '\0';
+  if (strcmp(commandName,"get_testpoint_info"))
+    return 0;
+  mxGetString(prhs[1], machineName, sizeof(machineName)/sizeof(char));
+  machineName[(sizeof(machineName)/sizeof(char)-1)] = '\0';
+  if (!strcmp(machineName, "RM3")) {
+    unsigned int chartFileNumber;
+    chartFileNumber = (unsigned int)mxGetScalar(prhs[2]);
+    switch (chartFileNumber) {
+     default:
+      plhs[0] = mxCreateDoubleMatrix(0,0,mxREAL);
+    }
+
+    return 1;
+  }
+
+  return 0;
+
+#else
+
+  return 0;
+
+#endif
+
+}
+
 unsigned int sf_RM3_process_check_sum_call( int nlhs, mxArray * plhs[], int nrhs,
   const mxArray * prhs[] )
 {
@@ -66,10 +105,10 @@ unsigned int sf_RM3_process_check_sum_call( int nlhs, mxArray * plhs[], int nrhs
       ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(0U);
       ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(0U);
     } else if (!strcmp(commandName,"makefile")) {
-      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(663944014U);
-      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(4104241180U);
-      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(1393687185U);
-      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(769604281U);
+      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(3372122970U);
+      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(2694479763U);
+      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(2101342922U);
+      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(1820516654U);
     } else if (nrhs==3 && !strcmp(commandName,"chart")) {
       unsigned int chartFileNumber;
       chartFileNumber = (unsigned int)mxGetScalar(prhs[2]);
@@ -81,18 +120,18 @@ unsigned int sf_RM3_process_check_sum_call( int nlhs, mxArray * plhs[], int nrhs
         ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(0.0);
       }
     } else if (!strcmp(commandName,"target")) {
-      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(3061339410U);
-      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(1991824845U);
-      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(3599338742U);
-      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(2357874978U);
+      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(1079105835U);
+      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(4093772408U);
+      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(525736737U);
+      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(2157381758U);
     } else {
       return 0;
     }
   } else {
-    ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(4055981118U);
-    ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(1167545403U);
-    ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(1874246340U);
-    ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(4268548442U);
+    ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(3103128377U);
+    ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(2606888556U);
+    ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(824722548U);
+    ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(3180836363U);
   }
 
   return 1;
