@@ -23,11 +23,11 @@ classdef waveClass<handle
         spectrumType                = 'NOT DEFINED'                             % Type of wave spectrum. Only PM, BS, JS, and Imported spectrum are supported.
         randPreDefined              = 0;                                        % Only used for irregular waves. Default is equal to 0; if it equals to 1, the waves pahse is pre-defined
         spectrumDataFile            = 'NOT DEFINED'                             % Data file that contains the spectrum data file. See ---- for format specs        
+        numFreq                     = 1001                                        % Number of interpolated wave frequencies (default = 'NOT DEFINED') 
     end
     
     properties (SetAccess = 'private', GetAccess = 'public')%internal  
         typeNum                     = []                                        % Number to represent different type of waves
-        numFreq                     = []                                        % Number of interpolated wave frequencies (default = 'NOT DEFINED') 
         bemFreq                     = []                                        % Number of wave frequencies from WAMIT
         waterDepth                  = []                                        % [m] Water depth (from WAMIT)
         waveAmpTime                 = 999                                       % [m] Wave elevation time history
@@ -56,9 +56,10 @@ classdef waveClass<handle
             end
         end
         
-        function waveSetup(obj,numFreq,bemFreq,wDepth,rampT,dt,maxIt,g)
+        function waveSetup(obj,bemFreq,wDepth,rampT,dt,maxIt,g)
         % Calculate and set wave properties based on wave type
-            obj.setWaveProps(numFreq,bemFreq,wDepth)
+            obj.bemFreq    = bemFreq;
+            obj.setWaveProps(wDepth)
             switch obj.type
                 case {'noWave','noWaveCIC','regular','regularCIC'}
                     obj.w = 2*pi/obj.T;
@@ -66,8 +67,8 @@ classdef waveClass<handle
                     obj.waveElevReg(rampT, dt, maxIt);
                 case {'irregular','irregularImport'}
                     numFqs=obj.numFreq;
-                    WFQSt=min(obj.bemFreq);
-                    WFQEd=max(obj.bemFreq);
+                    WFQSt=min(bemFreq);
+                    WFQEd=max(bemFreq);
                     df  = (WFQEd-WFQSt)/(numFqs-1);
                     obj.w = (WFQSt:df:WFQEd)';
                     obj.setWavePhase;
@@ -121,16 +122,14 @@ classdef waveClass<handle
         % Used by waveSetup
         % Sets the irregular wave's random phase
             if obj.randPreDefined ~= 0
-               rng(seed);    
+               rng(obj.randPreDefined);    
             end
             obj.phaseRand = 2*pi*rand(1,obj.numFreq);
         end
         
-        function setWaveProps(obj,numFreq,bemFreq,wDepth)                                     
+        function setWaveProps(obj,wDepth)                                     
         % Used by waveSetup
         % Sets global and type-specific properties
-            obj.numFreq    = numFreq;
-            obj.bemFreq    = bemFreq;
             obj.waterDepth = wDepth;
             switch obj.type
                 case {'noWave'}
@@ -182,26 +181,22 @@ classdef waveClass<handle
             if rampT==0    
                for i=1:maxIt+1;
                    t = (i-1)*dt;
-                   for j=1:numFqs
-                       tmp=sqrt(2*Sf(j)*df);
-                       obj.waveAmpTime(i) = obj.waveAmpTime(i) + tmp*real(exp(sqrt(-1)*(obj.w(j)*t + obj.phaseRand(j))));
-                   end
+                   tmp=sqrt(2*obj.A.*df);
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   obj.waveAmpTime(i) = sum(tmp1);
                end
             else    
                for i=1:maxRampIT
                    t = (i-1)*dt;
-                   for j=1:numFqs
-                       tmp=sqrt(2*Sf(j)*df);
-                       obj.waveAmpTime(i) = obj.waveAmpTime(i) + tmp*real(exp(sqrt(-1)*(obj.w(j)*t + obj.phaseRand(j))));
-                   end
-                   obj.waveAmpTime(i) = obj.waveAmpTime(i)*(1+cos(pi+pi*(i-1)/maxRampIT))/2;
+                   tmp=sqrt(2*obj.A.*df);
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   obj.waveAmpTime(i) = sum(tmp1)*(1+cos(pi+pi*(i-1)/maxRampIT))/2;
                end
                for i=maxRampIT+1:maxIt+1
                    t = (i-1)*dt;
-                   for j=1:numFqs
-                       tmp=sqrt(2*Sf(j)*df);
-                       obj.waveAmpTime(i) = obj.waveAmpTime(i) + tmp*real(exp(sqrt(-1)*(obj.w(j)*t + obj.phaseRand(j))));
-                   end
+                   tmp=sqrt(2*obj.A.*df);
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   obj.waveAmpTime(i) = sum(tmp1);
                end   
             end
         end
@@ -253,7 +248,7 @@ classdef waveClass<handle
         function printWaveSpectrumType(obj)                            
         % Used by listInfo
         % Lists the wave spectrum type
-            if strcmp(obj.spectrumType,'BS')
+           if strcmp(obj.spectrumType,'BS')
                 fprintf('\tSpectrum Type                        = Bretschneider \n')                    
            elseif strcmp(obj.spectrumType,'JS')
                 fprintf('\tSpectrum Type                        = JONSWAP \n')                    

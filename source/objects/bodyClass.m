@@ -163,12 +163,9 @@ classdef bodyClass<handle
         % Irregular wave excitation force
             obj.hydroForce.fExt.re=zeros(numFreq,6);
             obj.hydroForce.fExt.im=zeros(numFreq,6);
-            for i = 1:numFreq
-                w1 = wv(i);
-                for ii=1:6
-                    obj.hydroForce.fExt.re(i,ii) = interp1(obj.hydroData.simulation_parameters.w,obj.hydroData.hydro_coeffs.ex.re(:,ii),w1,'linear');    
-                    obj.hydroForce.fExt.im(i,ii) = interp1(obj.hydroData.simulation_parameters.w,obj.hydroData.hydro_coeffs.ex.im(:,ii),w1,'linear');      
-                end
+            for ii=1:6
+                obj.hydroForce.fExt.re(:,ii) = interp1(obj.hydroData.simulation_parameters.w,obj.hydroData.hydro_coeffs.ex.re(:,ii),wv,'spline');
+                obj.hydroForce.fExt.im(:,ii) = interp1(obj.hydroData.simulation_parameters.w,obj.hydroData.hydro_coeffs.ex.im(:,ii),wv,'spline');
             end
         end
 
@@ -195,7 +192,7 @@ classdef bodyClass<handle
             obj.hydroForce.ssRadf.D = zeros(6,6*kk);
         end
         
-        function irfInfAddedMassAndDamping(obj,CIkt,dt)%(obj,numFreq,CIkt,dt)        
+        function irfInfAddedMassAndDamping(obj,CIkt,dt)       
         % Used by hydroForcePre
         % Added mass at infinite frequency
         % Convolution integral raditation damping
@@ -206,7 +203,7 @@ classdef bodyClass<handle
             for ii=1:6
                 for jj=1:6
                     kk = jj + (iBod-1) * 6;
-                    obj.hydroForce.irkb(:,ii,kk) = interp1(irft,squeeze(irfk(ii,kk,:)),CTTime,'linear');
+                    obj.hydroForce.irkb(:,ii,kk) = interp1(irft,squeeze(irfk(ii,kk,:)),CTTime,'spline');
                 end
             end
             obj.hydroForce.fAddedMass=obj.hydroData.hydro_coeffs.am.inf(:,1+(iBod-1)*6:6+(iBod-1)*6);

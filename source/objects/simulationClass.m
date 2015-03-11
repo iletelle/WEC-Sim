@@ -38,7 +38,6 @@ classdef simulationClass<handle
         ssImport            = [];
         ssMax               = 10
         R2Thresh            = 0.95
-        numFreq             = 201                                          % Number of wave frequencies for interpolation (default = 201) 
         mode                = 'normal'                                     %'normal','accelerator','rapid-accelerator' (default = 'normal') 
         solver              = 'ode4'                                       % PDE solver used by the Simulink/SimMechanics simulation (default = 'ode4')
         explorer            = 'on'                                         % SimMechanics Explorer 'on' or 'off' (default = 'on'

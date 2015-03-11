@@ -1,15 +1,17 @@
 %%% WEC-Sim run file
 %% Start WEC-Sim log
-tic; bdclose('all'); clc; diary off; 
+bdclose('all'); clc; diary off; 
 if exist('simulation.log','file'); delete('simulation.log'); end
 diary('simulation.log')
 
 
 %% Read input file
+fprintf('\nWEC-Sim Read Input File ...   \n'); tic; 
 evalc('wecSimInputFile');
+toc;
 
 %% Setup simulation
-fprintf('\nWEC-Sim Pre-processing ...   \n')
+fprintf('\nWEC-Sim Pre-processing ...   \n'); tic;
 simu.numWecBodies = length(body(1,:));
 if exist('constraint','var') == 1; simu.numConstraints = length(constraint(1,:)); end
 if exist('pto','var') == 1; simu.numPtos = length(pto(1,:)); end
@@ -26,14 +28,17 @@ for ii = 1:simu.numWecBodies
            end; clear jj;
        end
     end
-end; clear ii;
+end; clear ii; toc;
 
 
 %% HydroForces Pre-Processing: Wave Setup & HydroForcePre
-waves.waveSetup(simu.numFreq, body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
+tic;
+fprintf('\nWEC-Sim Wave Setup & Model Setup & Run WEC-Sim ...   \n')
+waves.waveSetup(body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
 for kk = 1:simu.numWecBodies
-    body(kk).hydroForcePre(waves.w,simu.CIkt,simu.numFreq,simu.dt,simu.rho,waves.type,kk);
+    body(kk).hydroForcePre(waves.w,simu.CIkt,waves.numFreq,simu.dt,simu.rho,waves.type,kk);
 end; clear kk
+
 
 %% Output All the Simulation and Model Setting
 listSimulationParameters;
@@ -66,6 +71,7 @@ else
     end; clear i
 end
 
+
 %% Load simMechanics file & Run Simulation
 fprintf('\nSimulating the WEC device defined in the SimMechanics model %s...   \n',simu.simMechanicsFile)
 simu.loadSimMechModel(simu.simMechanicsFile);
@@ -91,6 +97,8 @@ fprintf('\n')
 if exist('userDefinedFunctions.m','file') == 2
     userDefinedFunctions;                
 end
-clear ans; toc; diary off; movefile('simulation.log',simu.logFile)
+clear ans; toc; 
+
+diary off; movefile('simulation.log',simu.logFile)
 save(simu.caseFile)
 
