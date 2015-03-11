@@ -47,7 +47,6 @@ classdef simulationClass<handle
     end
     properties (Dependent)
         maxIt                                                              % Total number of simulation time steps (default = dependent)        CIkt                                                               % Calculate the number of convolution integral timesteps (default = dependent)
-        zeroVel                                                            % Matrix of zeros with a size of 6,obj.CIkt+1 (default = dependent)
         CTTime                                                             % Convolution integral time series (default = dependent)       
         logFile                                                            % File with run information summary
         caseFile                                                           % .mat file with all simulation information
@@ -118,12 +117,7 @@ classdef simulationClass<handle
         % Function to calculate the convolution integral time series
             CTTime = 0:obj.dt:obj.dt*obj.CIkt;
         end  
-        
-        % Function to pre-populate a zero matrix for converlution integral calculation      
-        function zeroVel = get.zeroVel(obj)
-            zeroVel = zeros (6,obj.CIkt+1);
-        end
-        
+                
         function logFile = get.logFile(obj)
             if exist(obj.simMechanicsFile) ~=4
                 error('The simMecahnics file, %s, does not exist in the case directory',value)
