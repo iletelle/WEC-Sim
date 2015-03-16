@@ -23,8 +23,8 @@ classdef bodyClass<handle
         mass              = []                                                  % Mass in kg
         momOfInertia      = []                                                  % Moment of inertia [Ixx Iyy Izz] in kg*m^2
         geometryFile      = 'NONE'                                              % Location of geomtry stl file
-        mooring           = struct('c',          zeros(6,6), ...                         % Mooring damping, 6 x 6 matrix
-                                   'k',          zeros(6,6), ...                         % Mooring stiffness, 6 x 6 matrix
+        mooring           = struct('c',          zeros(6,6), ...                % Mooring damping, 6 x 6 matrix
+                                   'k',          zeros(6,6), ...                % Mooring stiffness, 6 x 6 matrix
                                    'preTension', 0)                             % Mooring preTension, Vector length 6
         viscDrag          = struct('cd',                   [0 0 0 0 0 0], ...   % Viscous (quadratic) drag cd, vector length 6
                                    'characteristicArea',   [0 0 0 0 0 0])       % Characteristic area for viscous drag, vector length 6
@@ -32,10 +32,10 @@ classdef bodyClass<handle
                                    'initAngularDispAxis',  [0 1 0], ...         % Initial displacement of cog - axis of rotation - used for decay tests (format: [x y z], default = [1 0 0])
                                    'initAngularDispAngle', 0)                   % Initial displacement of cog - Angle of rotation - used for decay tests (format: [radians], default = 0)
         linearDamping     = [0 0 0 0 0 0]
-        hydroForce        = struct()                                            % Hydrodynamic forces and coefficients used during simulation; see structure of hydroData in ----        
     end
     
     properties (SetAccess = 'private', GetAccess = 'public')%internal  
+        hydroForce        = struct()                                            % Hydrodynamic forces and coefficients used during simulation; see structure of hydroData in ----        
         massCalcMethod    = []                                                  % Method used to obtain mass: 'user', 'fixed', 'equilibrium'
         bodyNumber        = []                                                  % bodyNumber in WEC-Sim as defined in the input file. Can be different from the BEM body number.
     end
@@ -62,7 +62,7 @@ classdef bodyClass<handle
             obj.bodyNumber = iBod;
             obj.setMassMatrix(rho)
             obj.hydroForce.linearHydroRestCoef =  obj.hydroData.hydro_coeffs.k;
-            obj.hydroForce.visDampingCoef = diag(0.5*rho.*obj.viscDrag.cd.*obj.viscDrag.characteristicArea);
+            obj.hydroForce.visDrag = diag(0.5*rho.*obj.viscDrag.cd.*obj.viscDrag.characteristicArea);
             obj.hydroForce.linearDamping = diag(obj.linearDamping);
             switch waveType   
                 case {'noWave','regular'}
