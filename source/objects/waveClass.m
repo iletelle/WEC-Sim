@@ -218,7 +218,7 @@ classdef waveClass<handle
                     if r == 1; freq = sort(freq)';
                     else freq = sort(freq); end
                     fp = 1/Tp;
-                    gamma = 3.3;g = 9.81;
+                    gamma = 3.3;
                     siga = 0.07;sigb = 0.09;
                     [lind,~] = find(freq<=fp);
                     [hind,~] = find(freq>fp);

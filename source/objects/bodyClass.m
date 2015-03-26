@@ -54,14 +54,14 @@ classdef bodyClass<handle
             obj.hydroData.properties.name = obj.hydroData.properties.name{1};
         end
       
-        function hydroForcePre(obj,w,CIkt,numFreq,dt,rho,waveType,iBod)
+        function hydroForcePre(obj,w,CIkt,numFreq,dt,rho,waveType,iBod,convCalc)
         % HydroForce Pre-processing calculations
         % 1. Set the linear hydrodynamic restoring coefficient, viscous
         %    drag, and linear damping matrices
         % 2. Set the wave excitation force
             obj.bodyNumber = iBod;
             obj.setMassMatrix(rho)
-            obj.hydroForce.linearHydroRestCoef =  obj.hydroData.hydro_coeffs.k;
+            obj.hydroForce.linearHydroRestCoef =  obj.hydroData.hydro_coeffs.k + obj.hydroData.hydro_coeffs.k' - diag(diag(obj.hydroData.hydro_coeffs.k));
             obj.hydroForce.visDampingCoef = diag(0.5*rho.*obj.viscDrag.cd.*obj.viscDrag.characteristicArea);
             obj.hydroForce.linearDamping = diag(obj.linearDamping);
             switch waveType   
@@ -70,10 +70,10 @@ classdef bodyClass<handle
                     obj.constAddedMassAndDamping(w,CIkt);
                 case {'noWaveCIC','regularCIC'}
                     obj.regExcitation(w);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc);
                 case {'irregular','irregularImport'}
                     obj.irrExcitation(w,numFreq);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc);
                 otherwise
                     error('Unexpected wave environment type setting')
             end
@@ -84,18 +84,19 @@ classdef bodyClass<handle
         % 1. Storage the the original mass and added-mass properties
         % 2. Add diagonal added-mass inertia to moment of inertia
         % 3. Add the maximum diagonal traslational added-mass to body mass
+            iBod = obj.bodyNumber;
             obj.hydroForce.storage.mass = obj.mass;
             obj.hydroForce.storage.momOfInertia = obj.momOfInertia;
             obj.hydroForce.storage.fAddedMass = obj.hydroForce.fAddedMass;
-            tmp.fadm=diag(obj.hydroForce.fAddedMass);
+            tmp.fadm=diag(obj.hydroForce.fAddedMass(:,1+(iBod-1)*6:6+(iBod-1)*6));
             obj.mass = obj.mass+max(tmp.fadm(1:3));
             obj.momOfInertia = obj.momOfInertia+tmp.fadm(4:6)';
-            obj.hydroForce.fAddedMass(1,1) = obj.hydroForce.fAddedMass(1,1) - max(tmp.fadm(1:3));
-            obj.hydroForce.fAddedMass(2,2) = obj.hydroForce.fAddedMass(2,2) - max(tmp.fadm(1:3));
-            obj.hydroForce.fAddedMass(3,3) = obj.hydroForce.fAddedMass(3,3) - max(tmp.fadm(1:3));
-            obj.hydroForce.fAddedMass(4,4) = 0;
-            obj.hydroForce.fAddedMass(5,5) = 0;
-            obj.hydroForce.fAddedMass(6,6) = 0;
+            obj.hydroForce.fAddedMass(1,1+(iBod-1)*6) = obj.hydroForce.fAddedMass(1,1+(iBod-1)*6) - max(tmp.fadm(1:3));
+            obj.hydroForce.fAddedMass(2,2+(iBod-1)*6) = obj.hydroForce.fAddedMass(2,2+(iBod-1)*6) - max(tmp.fadm(1:3));
+            obj.hydroForce.fAddedMass(3,3+(iBod-1)*6) = obj.hydroForce.fAddedMass(3,3+(iBod-1)*6) - max(tmp.fadm(1:3));
+            obj.hydroForce.fAddedMass(4,4+(iBod-1)*6) = 0;
+            obj.hydroForce.fAddedMass(5,5+(iBod-1)*6) = 0;
+            obj.hydroForce.fAddedMass(6,6+(iBod-1)*6) = 0;
         end
         
         function restoreMassMatrix(obj)                                
@@ -132,6 +133,7 @@ classdef bodyClass<handle
         function fam = forceAddedMass(obj,acc)                         
         % 1. Stores the modified added mass force time history (input)
         % 2. Calculates and outputs the real added mass force time history
+            iBod = obj.bodyNumber;
             fam = zeros(size(acc));
             for i =1:6
                 tmp = zeros(length(acc(:,i)),1);
@@ -172,38 +174,51 @@ classdef bodyClass<handle
         function constAddedMassAndDamping(obj,w,CIkt)                  
         % Used by hydroForcePre
         % Added mass and damping for a specific frequency
-            iBod = obj.hydroData.properties.bodyNumber + 1;
-            obj.hydroForce.fAddedMass=zeros(6,6);
-            obj.hydroForce.fDamping  =zeros(6,6);
+            am = obj.hydroData.hydro_coeffs.am.all;
+            rd = obj.hydroData.hydro_coeffs.rd.all;
+            lenJ = length(obj.hydroData.hydro_coeffs.am.all(1,:,1));
+            obj.hydroForce.fAddedMass=zeros(6,lenJ);
+            obj.hydroForce.fDamping  =zeros(6,lenJ);
             for ii=1:6
-                for jj=1:6
-                    kk = jj + (iBod-1) * 6;
-                    tmp = reshape(obj.hydroData.hydro_coeffs.am.all(ii,kk,:),1,length(obj.hydroData.simulation_parameters.T));
-                    obj.hydroForce.fAddedMass(ii,jj) = interp1(obj.hydroData.simulation_parameters.w,tmp,w,'spline');
-                    tmp = reshape(obj.hydroData.hydro_coeffs.rd.all(ii,kk,:),1,length(obj.hydroData.simulation_parameters.T));
-                    obj.hydroForce.fDamping  (ii,jj) = interp1(obj.hydroData.simulation_parameters.w,tmp,w,'spline');
+                for jj=1:lenJ
+                    obj.hydroForce.fAddedMass(ii,jj) = interp1(obj.hydroData.simulation_parameters.w,squeeze(am(ii,jj,:)),w,'spline');
+                    obj.hydroForce.fDamping  (ii,jj) = interp1(obj.hydroData.simulation_parameters.w,squeeze(rd(ii,jj,:)),w,'spline');
                 end
             end
-            obj.hydroForce.irka=zeros(CIkt+1,6,6);
-            obj.hydroForce.irkb=zeros(CIkt+1,6,6);
+            obj.hydroForce.irkb=zeros(CIkt+1,6,lenJ);
+            obj.hydroForce.ssRadf.A = zeros(6,6);
+            obj.hydroForce.ssRadf.B = zeros(6,6);
+            obj.hydroForce.ssRadf.C = zeros(6,6);
+            obj.hydroForce.ssRadf.D = zeros(6,6);
         end
         
-        function irfInfAddedMassAndDamping(obj,CIkt,dt)       
-        % Used by hydroForcePre
-        % Added mass at infinite frequency
-        % Convolution integral raditation damping
-            iBod = obj.hydroData.properties.bodyNumber + 1;                
-            irfk = obj.hydroData.hydro_coeffs.irf.K;
-            irft = obj.hydroData.hydro_coeffs.irf.t;
-            CTTime = 0:dt:CIkt*dt;
-            for ii=1:6
-                for jj=1:6
-                    kk = jj + (iBod-1) * 6;
-                    obj.hydroForce.irkb(:,ii,jj) = interp1(irft,squeeze(irfk(ii,kk,:)),CTTime,'spline');
+        function irfInfAddedMassAndDamping(obj,CIkt,dt,convCalc)
+            % Used by hydroForcePre
+            % Added mass at infinite frequency
+            % Convolution integral raditation damping
+            if convCalc == 0
+                irfk = obj.hydroData.hydro_coeffs.irf.K;
+                irft = obj.hydroData.hydro_coeffs.irf.t;
+                lenJ = length(obj.hydroData.hydro_coeffs.am.all(1,:,1));
+                obj.hydroForce.irkb=zeros(CIkt+1,6,lenJ);
+                CTTime = 0:dt:CIkt*dt;
+                for ii=1:6
+                    for jj=1:lenJ
+                        obj.hydroForce.irkb(:,ii,jj) = interp1(irft,squeeze(irfk(ii,jj,:)),CTTime,'spline');
+                    end
                 end
+                obj.hydroForce.ssRadf.A = zeros(6,6);
+                obj.hydroForce.ssRadf.B = zeros(6,6);
+                obj.hydroForce.ssRadf.C = zeros(6,6);
+                obj.hydroForce.ssRadf.D = zeros(6,6);
+            else
+                obj.hydroForce.ssRadf.A = obj.hydroData.hydro_coeffs.ssRadf.A;
+                obj.hydroForce.ssRadf.B = obj.hydroData.hydro_coeffs.ssRadf.B;
+                obj.hydroForce.ssRadf.C = obj.hydroData.hydro_coeffs.ssRadf.C;
+                obj.hydroForce.ssRadf.D = obj.hydroData.hydro_coeffs.ssRadf.D;
             end
-            obj.hydroForce.fAddedMass=obj.hydroData.hydro_coeffs.am.inf(:,1+(iBod-1)*6:6+(iBod-1)*6);
-            obj.hydroForce.fDamping=zeros(6,6);
+            obj.hydroForce.fAddedMass=obj.hydroData.hydro_coeffs.am.inf;
+            obj.hydroForce.fDamping=zeros(6,lenJ);            
         end
         
         function setMassMatrix(obj, rho)                               

@@ -41,11 +41,9 @@ classdef simulationClass<handle
         mode                = 'normal'                                     %'normal','accelerator','rapid-accelerator' (default = 'normal') 
         solver              = 'ode4'                                       % PDE solver used by the Simulink/SimMechanics simulation (default = 'ode4')
         explorer            = 'on'                                         % SimMechanics Explorer 'on' or 'off' (default = 'on'
-        numT                = []
-        numDTPerT           = []
-        numRampT            = []        
-        rho                 = []                                           % Density of water (default = 1000 kg/m^3)
-        g                   = []                                           % Acceleration due to gravity (default = 9.81 m/s)
+        rho                 = 1000                                         % Density of water (default = 1000 kg/m^3)
+        g                   = 9.81                                         % Acceleration due to gravity (default = 9.81 m/s)
+        
     end
     properties (Dependent)
         maxIt                                                              % Total number of simulation time steps (default = dependent)        CIkt                                                               % Calculate the number of convolution integral timesteps (default = dependent)
@@ -142,15 +140,10 @@ classdef simulationClass<handle
         end
         
         function obj = set.simMechanicsFile(obj,value)
-            if exist(value,'file') ~= 4
+            if exist(value) ~= 4
                 error('The simMecahnics file, %s, does not exist in the case directory',value)
             end
                 obj.simMechanicsFile = value;
-        end
-        
-        function rhoDensitySetup(obj,rho,g)
-                obj.rho = rho;
-                obj.g   = g;                
         end
         
     end

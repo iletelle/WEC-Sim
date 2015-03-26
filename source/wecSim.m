@@ -34,9 +34,10 @@ end; clear ii; toc;
 %% HydroForces Pre-Processing: Wave Setup & HydroForcePre
 tic;
 fprintf('\nWEC-Sim Wave Setup & Model Setup & Run WEC-Sim ...   \n')
+simu.rhoDensitySetup(body(1).hydroData.simulation_parameters.rho,body(1).hydroData.simulation_parameters.g)
 waves.waveSetup(body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
 for kk = 1:simu.numWecBodies
-    body(kk).hydroForcePre(waves.w,simu.CIkt,waves.numFreq,simu.dt,simu.rho,waves.type,kk);
+    body(kk).hydroForcePre(waves.w,simu.CIkt,waves.numFreq,simu.dt,simu.rho,waves.type,kk,simu.convCalc);
 end; clear kk
 
 
@@ -71,7 +72,6 @@ else
     end; clear i
 end
 
-
 %% Load simMechanics file & Run Simulation
 fprintf('\nSimulating the WEC device defined in the SimMechanics model %s...   \n',simu.simMechanicsFile)
 simu.loadSimMechModel(simu.simMechanicsFile);
@@ -88,8 +88,8 @@ if simu.rampT == 10e-8; simu.rampT = 0; end
 postResponse
 for iBod = 1:simu.numWecBodies
     body(iBod).restoreMassMatrix
-    body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
-    output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
+%     body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
+%     output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
 end; clear iBod
 fprintf('\n')
 

@@ -66,6 +66,10 @@ if exist('pto','var')
             pto(i).name '_out.signals.values(:,2);']);
         eval(['output.ptos(' num2str(i) ').constraintForces = '... 
             pto(i).name '_out.signals.values(:,3:8);']);
+        eval(['output.ptos(' num2str(i) ').pos = '... 
+            pto(i).name '_out.signals.values(:,9);']);
+        eval(['output.ptos(' num2str(i) ').vel = '... 
+            pto(i).name '_out.signals.values(:,10);']);
         eval(['clear ' pto(i).name '_out;']);
     end
 end
