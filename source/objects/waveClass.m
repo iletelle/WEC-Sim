@@ -23,7 +23,7 @@ classdef waveClass<handle
         spectrumType                = 'NOT DEFINED'                             % Type of wave spectrum. Only PM, BS, JS, and Imported spectrum are supported.
         randPreDefined              = 0;                                        % Only used for irregular waves. Default is equal to 0; if it equals to 1, the waves pahse is pre-defined
         spectrumDataFile            = 'NOT DEFINED'                             % Data file that contains the spectrum data file. See ---- for format specs        
-        numFreq                     = 1001                                        % Number of interpolated wave frequencies (default = 'NOT DEFINED') 
+        numFreq                     = 1001                                      % Number of interpolated wave frequencies (default = 'NOT DEFINED') 
     end
     
     properties (SetAccess = 'private', GetAccess = 'public')%internal  
@@ -34,6 +34,7 @@ classdef waveClass<handle
         A                           = []                                        % [m] Wave amplitude for regular waves or sqrt(wave spectrum vector) for irregular waves
         w                           = []                                        % [rad/s] Wave frequency (regular waves) or wave frequency vector (irregular waves)
         phaseRand                   = 999                                       % [rad] Random wave phase (only used for irregular waves)
+        dw                          = []
     end
     
     methods (Access = 'public')                                        
@@ -69,8 +70,8 @@ classdef waveClass<handle
                     numFqs=obj.numFreq;
                     WFQSt=min(bemFreq);
                     WFQEd=max(bemFreq);
-                    df  = (WFQEd-WFQSt)/(numFqs-1);
-                    obj.w = (WFQSt:df:WFQEd)';
+                    obj.df  = (WFQEd-WFQSt)/(numFqs-1);
+                    obj.w = (WFQSt:obj.df:WFQEd)';
                     obj.setWavePhase;
                     obj.irregWaveSpectrum(g)
                     obj.waveElevIrreg(rampT, dt, maxIt, df);
@@ -125,6 +126,7 @@ classdef waveClass<handle
                rng(obj.randPreDefined);    
             end
             obj.phaseRand = 2*pi*rand(1,obj.numFreq);
+            obj.phaseRand = obj.phaseRand';
         end
         
         function setWaveProps(obj,wDepth)                                     
@@ -182,20 +184,20 @@ classdef waveClass<handle
                for i=1:maxIt+1;
                    t = (i-1)*dt;
                    tmp=sqrt(2*obj.A.*df);
-                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand)));
                    obj.waveAmpTime(i) = sum(tmp1);
                end
             else    
                for i=1:maxRampIT
                    t = (i-1)*dt;
                    tmp=sqrt(2*obj.A.*df);
-                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand)));
                    obj.waveAmpTime(i) = sum(tmp1)*(1+cos(pi+pi*(i-1)/maxRampIT))/2;
                end
                for i=maxRampIT+1:maxIt+1
                    t = (i-1)*dt;
                    tmp=sqrt(2*obj.A.*df);
-                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand')));
+                   tmp1 = tmp.*real(exp(sqrt(-1).*(obj.w.*t + obj.phaseRand)));
                    obj.waveAmpTime(i) = sum(tmp1);
                end   
             end
@@ -242,7 +244,7 @@ classdef waveClass<handle
                     S_f = interp1(freq_data,Sf_data,freq,'pchip',0);
                     Sf = S_f./(2*pi); 
             end
-            obj.A = Sf;
+            obj.A = 2 * Sf;
         end
         
         function printWaveSpectrumType(obj)                            
