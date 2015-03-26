@@ -34,7 +34,7 @@ classdef waveClass<handle
         A                           = []                                        % [m] Wave amplitude for regular waves or sqrt(wave spectrum vector) for irregular waves
         w                           = []                                        % [rad/s] Wave frequency (regular waves) or wave frequency vector (irregular waves)
         phaseRand                   = 999                                       % [rad] Random wave phase (only used for irregular waves)
-        dw                          = []
+        dw                          = 0                                         % [rad] Frequency spacing for irregular waves.
     end
     
     methods (Access = 'public')                                        
@@ -72,6 +72,7 @@ classdef waveClass<handle
                     WFQEd=max(bemFreq);
                     obj.df  = (WFQEd-WFQSt)/(numFqs-1);
                     obj.w = (WFQSt:obj.df:WFQEd)';
+                    obj.dw=(obj.w(end)-obj.w(1))/(obj.numFreq-1);
                     obj.setWavePhase;
                     obj.irregWaveSpectrum(g)
                     obj.waveElevIrreg(rampT, dt, maxIt, df);
