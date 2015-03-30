@@ -70,8 +70,8 @@ classdef waveClass<handle
                     numFqs=obj.numFreq;
                     WFQSt=min(bemFreq);
                     WFQEd=max(bemFreq);
-                    obj.df  = (WFQEd-WFQSt)/(numFqs-1);
-                    obj.w = (WFQSt:obj.df:WFQEd)';
+                    df  = (WFQEd-WFQSt)/(numFqs-1);
+                    obj.w = (WFQSt:df:WFQEd)';
                     obj.dw=(obj.w(end)-obj.w(1))/(obj.numFreq-1);
                     obj.setWavePhase;
                     obj.irregWaveSpectrum(g)
