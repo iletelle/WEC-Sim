@@ -70,10 +70,10 @@ classdef bodyClass<handle
                     obj.constAddedMassAndDamping(w,CIkt);
                 case {'noWaveCIC','regularCIC'}
                     obj.regExcitation(w);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc,iBod);
                 case {'irregular','irregularImport'}
                     obj.irrExcitation(w,numFreq);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc,iBod);
                 otherwise
                     error('Unexpected wave environment type setting')
             end
@@ -192,33 +192,61 @@ classdef bodyClass<handle
             obj.hydroForce.ssRadf.D = zeros(6,6);
         end
         
-        function irfInfAddedMassAndDamping(obj,CIkt,dt,convCalc)
+        function irfInfAddedMassAndDamping(obj,CIkt,dt,convCalc,iBod)
             % Used by hydroForcePre
             % Added mass at infinite frequency
             % Convolution integral raditation damping
-            if convCalc == 0
-                irfk = obj.hydroData.hydro_coeffs.irf.K;
-                irft = obj.hydroData.hydro_coeffs.irf.t;
-                lenJ = length(obj.hydroData.hydro_coeffs.am.all(1,:,1));
-                obj.hydroForce.irkb=zeros(CIkt+1,6,lenJ);
-                CTTime = 0:dt:CIkt*dt;
-                for ii=1:6
-                    for jj=1:lenJ
-                        obj.hydroForce.irkb(:,ii,jj) = interp1(irft,squeeze(irfk(ii,jj,:)),CTTime,'spline');
+            lenJ = length(obj.hydroData.hydro_coeffs.am.all(1,:,1));
+            irfk = obj.hydroData.hydro_coeffs.irf.K;
+            irft = obj.hydroData.hydro_coeffs.irf.t;
+            
+            obj.hydroForce.irkb=zeros(CIkt+1,6,lenJ);
+            CTTime = 0:dt:CIkt*dt;
+            for ii=1:6
+                for jj=1:lenJ
+                    obj.hydroForce.irkb(:,ii,jj) = interp1(irft,squeeze(irfk(ii,jj,:)),CTTime,'spline');
+                end
+            end
+            obj.hydroForce.ssRadf.A = zeros(6,6);
+            obj.hydroForce.ssRadf.B = zeros(6,6);
+            obj.hydroForce.ssRadf.C = zeros(6,6);
+            obj.hydroForce.ssRadf.D = zeros(6,6);
+            
+            if convCalc == 1
+                for ii = 1:6
+                    for jj = (iBod-1)*6+1:(iBod-1)*6+6
+                        jInd = jj-(iBod-1)*6;
+                        %                         fprintf(['\t\t\t',num2str(ii),',',num2str(jj),'\n'])
+                        %                         [Ass,Bss,Css,Dss,R2T,status] = SS_TD(squeeze(irfk(ii,jj,:)),10,0.95,0.1); %Run time domain realization
+                        %
+                        %                         obj.hydroForce.ssRadf(ii,jj).A = Ass;
+                        %                         obj.hydroForce.ssRadf(ii,jj).B = Bss;
+                        %                         obj.hydroForce.ssRadf(ii,jj).C = Css;
+                        %                         obj.hydroForce.ssRadf(ii,jj).D = Dss;
+                        %                         obj.hydroForce.ssRadconv(ii,jj)= status;
+                        %                         obj.hydroForce.ssRadR2T(ii,jj) = R2T;
+                        arraySize = obj.hydroData.hydro_coeffs.stateSpace.ss(ii,jj);
+                        if ii == 1 && jInd == 1 % Begin construction of combined state, input, and output matrices
+                            Af(1:arraySize,1:arraySize) = obj.hydroData.hydro_coeffs.stateSpace.A(ii,jj,1:arraySize,1:arraySize);
+                            Bf(1:arraySize,jInd) = obj.hydroData.hydro_coeffs.stateSpace.B(ii,jj,1:arraySize,1);
+                            Cf(ii,1:arraySize) = obj.hydroData.hydro_coeffs.stateSpace.C(ii,jj,1,1:arraySize);
+                        else
+                            Af(size(Af,1)+1:size(Af,1)+arraySize,...
+                               size(Af,2)+1:size(Af,2)+arraySize)    = obj.hydroData.hydro_coeffs.stateSpace.A(ii,jj,1:arraySize,1:arraySize);
+                            Bf(size(Bf,1)+1:size(Bf,1)+arraySize,jInd) = obj.hydroData.hydro_coeffs.stateSpace.B(ii,jj,1:arraySize,1);
+                            Cf(ii,size(Cf,2)+1:size(Cf,2)+arraySize) = obj.hydroData.hydro_coeffs.stateSpace.C(ii,jj,1,1:arraySize);
+                        end
+                        
                     end
                 end
-                obj.hydroForce.ssRadf.A = zeros(6,6);
-                obj.hydroForce.ssRadf.B = zeros(6,6);
-                obj.hydroForce.ssRadf.C = zeros(6,6);
-                obj.hydroForce.ssRadf.D = zeros(6,6);
-            else
-                obj.hydroForce.ssRadf.A = obj.hydroData.hydro_coeffs.ssRadf.A;
-                obj.hydroForce.ssRadf.B = obj.hydroData.hydro_coeffs.ssRadf.B;
-                obj.hydroForce.ssRadf.C = obj.hydroData.hydro_coeffs.ssRadf.C;
-                obj.hydroForce.ssRadf.D = obj.hydroData.hydro_coeffs.ssRadf.D;
+                
+                obj.hydroForce.ssRadf.A = Af;
+                obj.hydroForce.ssRadf.B = Bf;
+                obj.hydroForce.ssRadf.C = Cf;
+                %obj.hydroForce.ssRadf.D is a 6 by (numBodiesx6) array of zeros;
             end
             obj.hydroForce.fAddedMass=obj.hydroData.hydro_coeffs.am.inf;
-            obj.hydroForce.fDamping=zeros(6,lenJ);            
+            obj.hydroForce.fDamping=zeros(6,lenJ);
         end
         
         function setMassMatrix(obj, rho)                               
