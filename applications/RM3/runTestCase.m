@@ -28,14 +28,14 @@ wecSim;
 new.time = output.bodies(1).time;
 new.body1_heave = output.bodies(1).position(:,3) - output.bodies(1).position(1,3);
 new.body2_heave = output.bodies(2).position(:,3) - output.bodies(2).position(1,3);
-new.rel_heave = new.body1_heave - new.body2_heave;
+new.rel_heave = output.ptos(1).pos;
 clear output;
  
 load('output_org.mat');
 org.time = output.bodies(1).time;
 org.body1_heave = output.bodies(1).position(:,3) - output.bodies(1).position(1,3);
 org.body2_heave = output.bodies(2).position(:,3) - output.bodies(2).position(1,3);
-org.rel_heave = org.body1_heave - org.body2_heave;
+org.rel_heave = output.ptos(1).pos;
 clear output;
 
 

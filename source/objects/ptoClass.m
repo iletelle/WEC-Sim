@@ -22,6 +22,10 @@ classdef ptoClass<handle
         loc                     = [999 999 999]                                 % PTO location. Default = [0 0 0]        
     end 
     
+    properties (SetAccess = 'public', GetAccess = 'public')%internal
+        ptoNum                  = []
+    end
+    
     methods                                                            
         function obj = ptoClass(name)                                  
         % Initilization function

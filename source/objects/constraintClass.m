@@ -20,6 +20,10 @@ classdef constraintClass<handle
         loc                     = [999 999 999]                                 % Constraint location. Default = [0 0 0]        
     end
     
+    properties (SetAccess = 'public', GetAccess = 'public')%internal
+        constraintNum           = []
+    end
+    
     methods (Access = 'public')                                        
         function obj = constraintClass(name)                           
         % Initilization function
