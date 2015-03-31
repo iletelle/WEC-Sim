@@ -35,7 +35,7 @@ end; clear ii; toc;
 tic;
 fprintf('\nWEC-Sim Wave Setup & Model Setup & Run WEC-Sim ...   \n')
 simu.rhoDensitySetup(body(1).hydroData.simulation_parameters.rho,body(1).hydroData.simulation_parameters.g)
-waves.waveSetup(body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.wDepth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
+waves.waveSetup(body(1).hydroData.simulation_parameters.w, body(1).hydroData.simulation_parameters.water_depth, simu.rampT, simu.dt, simu.maxIt, simu.g); 
 for kk = 1:simu.numWecBodies
     body(kk).hydroForcePre(waves.w,simu.CIkt,waves.numFreq,simu.dt,simu.rho,waves.type,kk,simu.convCalc);
 end; clear kk

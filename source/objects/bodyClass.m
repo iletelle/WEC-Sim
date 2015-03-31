@@ -47,9 +47,9 @@ classdef bodyClass<handle
             if exist(filename,'file') == 0
                 error('The hdf5 file %s does not exist',file)                
             end
-            info = h5info(filename);
-            obj.hydroData.properties = h5load(filename, ['body' num2str(iBod) '/properties']);
-            obj.hydroData.hydro_coeffs = h5load(filename, ['body' num2str(iBod) '/hydro_coeffs']);
+            name = ['body' num2str(iBod-1)];
+            obj.hydroData.properties = h5load(filename, [name '/properties']);
+            obj.hydroData.hydro_coeffs = h5load(filename, [name '/hydro_coeffs']);
             obj.hydroData.simulation_parameters = h5load(filename, '/simulation_parameters');
             obj.hydroData.properties.name = obj.hydroData.properties.name{1};
         end
@@ -118,7 +118,7 @@ classdef bodyClass<handle
 
         function listInfo(obj)                                         
         % List body info
-            fprintf('\n\t***** Body Number %G, Name: %s *****\n',obj.hydroData.properties.bodyNumber,obj.hydroData.properties.name)
+            fprintf('\n\t***** Body Number %G, Name: %s *****\n',obj.hydroData.properties.body_number,obj.hydroData.properties.name)
             fprintf('\tBody CG                          (m) = [%G,%G,%G]\n',obj.hydroData.properties.cg)
             fprintf('\tBody Mass                       (kg) = %G \n',obj.mass);
             fprintf('\tBody Diagonal MOI              (kgm2)= [%G,%G,%G]\n',obj.momOfInertia)
