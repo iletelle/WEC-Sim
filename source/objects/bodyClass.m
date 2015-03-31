@@ -48,8 +48,8 @@ classdef bodyClass<handle
                 error('The hdf5 file %s does not exist',file)                
             end
             info = h5info(filename);
-            obj.hydroData.properties = h5load(filename, [info.Groups(iBod).Name '/properties']);
-            obj.hydroData.hydro_coeffs = h5load(filename, [info.Groups(iBod).Name '/hydro_coeffs']);
+            obj.hydroData.properties = h5load(filename, ['body' num2str(iBod) '/properties']);
+            obj.hydroData.hydro_coeffs = h5load(filename, ['body' num2str(iBod) '/hydro_coeffs']);
             obj.hydroData.simulation_parameters = h5load(filename, '/simulation_parameters');
             obj.hydroData.properties.name = obj.hydroData.properties.name{1};
         end
