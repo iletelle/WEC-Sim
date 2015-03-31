@@ -47,7 +47,7 @@ classdef bodyClass<handle
             if exist(filename,'file') == 0
                 error('The hdf5 file %s does not exist',file)                
             end
-            name = ['body' num2str(iBod-1)];
+            name = ['body' num2str(iBod)];
             obj.hydroData.properties = h5load(filename, [name '/properties']);
             obj.hydroData.hydro_coeffs = h5load(filename, [name '/hydro_coeffs']);
             obj.hydroData.simulation_parameters = h5load(filename, '/simulation_parameters');

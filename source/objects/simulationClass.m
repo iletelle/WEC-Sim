@@ -19,7 +19,8 @@ classdef simulationClass<handle
         outputDir           = 'output'                                     % Data output directory name
         time                = 0                                            % Simulation time [s] (default = 0 s)
     end
-    properties (Access = public) 
+    
+    properties (Access = public)
         numWecBodies        = [] % make these dependent variables                                % Number of hydrodynamic bodies that comprise the WEC device (default = 'NOT DEFINED') 
         numPtos             = []                                            % Number of power take-off elements in the model (default = 'NOT DEFINED') 
         numConstraints      = []                                            % Number of contraints in the wec model (default = 'NOT DEFINED')
@@ -47,6 +48,7 @@ classdef simulationClass<handle
         rho                 = []                                           % Density of water (default = 1000 kg/m^3)
         g                   = []                                           % Acceleration due to gravity (default = 9.81 m/s)
     end
+    
     properties (Dependent)
         maxIt                                                              % Total number of simulation time steps (default = dependent)        CIkt                                                               % Calculate the number of convolution integral timesteps (default = dependent)
         CTTime                                                             % Convolution integral time series (default = dependent)       
@@ -58,7 +60,6 @@ classdef simulationClass<handle
     
     methods
      
-        % simulationClass constructor function
         function obj = simulationClass(file)
              if nargin >= 1
                  obj.inputFile = file; % Function to change the name of the input file if desired (not reccomended)
@@ -153,5 +154,17 @@ classdef simulationClass<handle
                 obj.g   = g;                
         end
         
+        function listInfo(obj,waveTypeNum)
+            fprintf('\nWEC-Sim Simulation Settings:\n');
+            fprintf('\tTime Marching Solver                 = Fourth-Order Runge-Kutta Formula \n')
+            fprintf('\tStart Time                     (sec) = %G\n',obj.startTime) 
+            fprintf('\tEnd Time                       (sec) = %G\n',obj.endTime) 
+            fprintf('\tTime Step Size                 (sec) = %G\n',obj.dt)
+            fprintf('\tRamp Function Time             (sec) = %G\n',obj.rampT) 
+            if waveTypeNum > 10
+                fprintf('\tConvolution Integral Interval  (sec) = %G\n',obj.CITime) 
+            end
+            fprintf('\tTotal Number of Time Step            = %u \n',obj.maxIt) 
+        end
     end
 end

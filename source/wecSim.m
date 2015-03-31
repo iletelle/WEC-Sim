@@ -13,8 +13,18 @@ toc;
 %% Setup simulation
 fprintf('\nWEC-Sim Pre-processing ...   \n'); tic;
 simu.numWecBodies = length(body(1,:));
-if exist('constraint','var') == 1; simu.numConstraints = length(constraint(1,:)); end
-if exist('pto','var') == 1; simu.numPtos = length(pto(1,:)); end
+if exist('constraint','var') == 1
+    simu.numConstraints = length(constraint(1,:));
+    for ii = 1:simu.numConstraints
+        constraint(ii).constraintNum = ii;
+    end
+end
+if exist('pto','var') == 1
+    simu.numPtos = length(pto(1,:));
+    for ii = 1:simu.numPtos
+        pto(ii).ptoNum = ii;
+    end
+end
 
 
 %% Check that the hydro data for each body is given for the same frequencies
@@ -42,7 +52,7 @@ end; clear kk
 
 
 %% Output All the Simulation and Model Setting
-listSimulationParameters;
+simu.listInfo(waves.typeNum);
 
 waves.listInfo
 
@@ -71,6 +81,7 @@ else
         constraint(i).listInfo
     end; clear i
 end
+fprintf('\n')
 
 %% Load simMechanics file & Run Simulation
 fprintf('\nSimulating the WEC device defined in the SimMechanics model %s...   \n',simu.simMechanicsFile)
@@ -85,20 +96,51 @@ if strcmp(simu.explorer,'on') &&  ~isfloat(waves.waterDepth)
 end
 sim(simu.simMechanicsFile);
 if simu.rampT == 10e-8; simu.rampT = 0; end
-postResponse
+
 for iBod = 1:simu.numWecBodies
     body(iBod).restoreMassMatrix
 %     body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
 %     output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
 end; clear iBod
-fprintf('\n')
 
-%% Post processing and Saving Results
+
+%% %% Post processing and Saving Results
+% bodiesOutput = struct();
+for iBod = 1:simu.numWecBodies
+    eval(['body' num2str(iBod) '_out.name = body(' num2str(iBod) ').hydroData.properties.name;']);
+    if iBod == 1; bodiesOutput = body1_out; end
+    bodiesOutput(iBod) = eval(['body' num2str(iBod) '_out']);
+    eval(['clear body' num2str(iBod) '_out'])
+end; clear iBod
+if exist('pto','var')
+    for iPto = 1:simu.numPtos
+        eval(['pto' num2str(iPto) '_out.name = pto(' num2str(iPto) ').name;'])
+        if iPto == 1; ptosOutput = pto1_out; end
+        ptosOutput(iPto) = eval(['pto' num2str(iPto) '_out']);
+        eval(['clear pto' num2str(iPto) '_out'])
+    end; clear iPto
+else
+    ptosOutput = 0;
+end
+if exist('constraint','var')
+    for iCon = 1:simu.numConstraints
+        eval(['constraint' num2str(iCon) '_out.name = constraint(' num2str(iCon) ').name;'])
+        if iCon == 1; constraintsOutput = constraint1_out; end
+        constraintsOutput(iCon) = eval(['constraint' num2str(iCon) '_out']);
+        eval(['clear constraint' num2str(iCon) '_out'])
+    end; clear iCon
+else
+    constraintsOutput = 0;
+end
+output = responseClass(bodiesOutput,ptosOutput,constraintsOutput);
+clear bodiesOutput ptosOutput constraintsOutput
+
+% User Defined Post-Processing
 if exist('userDefinedFunctions.m','file') == 2
     userDefinedFunctions;                
 end
-clear ans; toc; 
 
+clear ans; toc; 
 diary off; movefile('simulation.log',simu.logFile)
 save(simu.caseFile)
 

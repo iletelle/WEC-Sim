@@ -1,12 +1,9 @@
 %% Simulation Data
 
 simu = simulationClass();
+simu.simMechanicsFile = 'RM3.slx';        
 simu.endTime=400;
 simu.dt = 0.1;
-simu.simMechanicsFile = 'RM3.slx';        
-% simu.mode='rapid-accelerator';
-% simu.explorer = 'off';
-simu.convCalc = 0;
 simu.rampT = 100;
 
 %% Wave Information
@@ -26,12 +23,20 @@ waves.T = 8;
 % waves.spectrumDataFile = 'ndbcBuoyData.txt';
 
 %% Body Data
+<<<<<<< HEAD
 body(1) = bodyClass('hydroData/rm3.h5',1);              
+=======
+body(1) = bodyClass('hydroData/rm3.h5',0);              
+>>>>>>> FETCH_HEAD
 body(1).mass = 'equilibrium'; 
 body(1).momOfInertia = [20907301 21306090.66 37085481.11];      
 body(1).geometryFile = 'geometry/float.stl';    
 
+<<<<<<< HEAD
 body(2) = bodyClass('hydroData/rm3.h5',2);
+=======
+body(2) = bodyClass('hydroData/rm3.h5',1);
+>>>>>>> FETCH_HEAD
 body(2).mass = 'equilibrium'; 
 body(2).momOfInertia = [94419614.57 94407091.24 28542224.82];
 body(2).geometryFile = 'geometry/plate.stl';
