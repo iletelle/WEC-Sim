@@ -26,18 +26,18 @@ waves.T = 8;
 % waves.spectrumDataFile = 'ndbcBuoyData.txt';
 
 %% Body Data
-body(1) = bodyClass('hydroData/oswec.h5',0);   % Initialize bodyClass for Flap
+body(1) = bodyClass('hydroData/oswec.h5',1);   % Initialize bodyClass for Flap
 body(1).mass = 127000;                         % User-Defined mass [kg]
 body(1).momOfInertia = [1.85e6 1.85e6 1.85e6]; % Moment of Inertia [kg-m^2]
 body(1).geometryFile = 'geometry/flap.stl';    % Geometry File
 
-body(2) = bodyClass('hydroData/oswec.h5',1);   % Initialize bodyClass for Base
+body(2) = bodyClass('hydroData/oswec.h5',2);   % Initialize bodyClass for Base
 body(2).geometryFile = 'geometry/base.stl';    % Geometry File
 body(2).mass = 'fixed';                        % Creates Fixed Body
 
 %% PTO and Constraint Parameters
 constraint(1)= constraintClass('Constraint1'); % Initialize ConstraintClass for Constraint1
-constraint(1).loc = [0 0 0];
+constraint(1).loc = [0 0 -10];
 
 pto(1) = ptoClass('PTO1');                     % Initialize ptoClass for PTO1
 pto(1).k = 0;                                  % PTO Stiffness Coeff [Nm/rad]

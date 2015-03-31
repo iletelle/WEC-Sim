@@ -34,7 +34,7 @@ classdef simulationClass<handle
         rampT               = 100                                          % Ramp time for wave forcing (default = 100 s)
         domainSize          = 200                                          % Size of free surface and seabed. This variable is only used for visualization (default = 200 m)
         CITime              = 60                                           % Convolution integral time (default = 60 s)
-        convCalc            = 0
+        ssCalc              = 0
         ssReal              = 'TD'
         ssImport            = [];
         ssMax               = 10

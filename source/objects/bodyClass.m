@@ -54,7 +54,7 @@ classdef bodyClass<handle
             obj.hydroData.properties.name = obj.hydroData.properties.name{1};
         end
       
-        function hydroForcePre(obj,w,CIkt,numFreq,dt,rho,waveType,iBod,convCalc)
+        function hydroForcePre(obj,w,CIkt,numFreq,dt,rho,waveType,iBod,ssCalc)
         % HydroForce Pre-processing calculations
         % 1. Set the linear hydrodynamic restoring coefficient, viscous
         %    drag, and linear damping matrices
@@ -71,10 +71,10 @@ classdef bodyClass<handle
                     obj.constAddedMassAndDamping(w,CIkt);
                 case {'noWaveCIC','regularCIC'}
                     obj.regExcitation(w);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc,iBod);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,ssCalc,iBod);
                 case {'irregular','irregularImport'}
                     obj.irrExcitation(w,numFreq);
-                    obj.irfInfAddedMassAndDamping(CIkt,dt,convCalc,iBod);
+                    obj.irfInfAddedMassAndDamping(CIkt,dt,ssCalc,iBod);
                 otherwise
                     error('Unexpected wave environment type setting')
             end
@@ -193,7 +193,7 @@ classdef bodyClass<handle
             obj.hydroForce.ssRadf.D = zeros(6,6);
         end
         
-        function irfInfAddedMassAndDamping(obj,CIkt,dt,convCalc,iBod)
+        function irfInfAddedMassAndDamping(obj,CIkt,dt,ssCalc,iBod)
             % Used by hydroForcePre
             % Added mass at infinite frequency
             % Convolution integral raditation damping
@@ -213,7 +213,7 @@ classdef bodyClass<handle
             obj.hydroForce.ssRadf.C = zeros(6,6);
             obj.hydroForce.ssRadf.D = zeros(6,6);
             
-            if convCalc == 1
+            if ssCalc == 1
                 for ii = 1:6
                     for jj = (iBod-1)*6+1:(iBod-1)*6+6
                         jInd = jj-(iBod-1)*6;
