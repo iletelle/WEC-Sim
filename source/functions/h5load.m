@@ -13,9 +13,12 @@ function data=h5load(filename, path)
 % path_in_file : optional
 %     Path to the part of the HDF5 file to load
 %
-
+%
 % Author: Pauli Virtanen <pav@iki.fi>
 % This script is in the Public Domain. No warranty.
+%
+% This version distributed in WEC-Sim has some updates.
+
 
 if nargin > 1
   path_parts = regexp(path, '/', 'split');
@@ -37,7 +40,7 @@ end
 function data=load_one(loc, path_parts, full_path)
 % Load a record recursively.
 
-while ~isempty(path_parts) & strcmp(path_parts{1}, '')
+while ~isempty(path_parts) && strcmp(path_parts{1}, '')
   path_parts = path_parts(2:end);
 end
 
@@ -62,8 +65,8 @@ for j_item=0:num_objs-1,
     % Group
     name = regexprep(objname, '.*/', '');
   
-    if isempty(path_parts) | strcmp(path_parts{1}, name)
-      if ~isempty(regexp(name,'^[a-zA-Z].*'))
+    if isempty(path_parts) || strcmp(path_parts{1}, name)
+      if ~isempty(regexp(name,'^[a-zA-Z].*','ONCE'))
 	group_loc = H5G.open(loc, name);
 	try
 	  sub_data = load_one(group_loc, path_parts(2:end), full_path);
@@ -73,7 +76,7 @@ for j_item=0:num_objs-1,
 	  rethrow(exc);
 	end
 	if isempty(path_parts)
-	  data = setfield(data, name, sub_data);
+      data.(name) = sub_data;
 	else
 	  data = sub_data;
 	  return
@@ -85,8 +88,8 @@ for j_item=0:num_objs-1,
     % Dataset
     name = regexprep(objname, '.*/', '');
   
-    if isempty(path_parts) | strcmp(path_parts{1}, name)
-      if ~isempty(regexp(name,'^[a-zA-Z].*'))
+    if isempty(path_parts) || strcmp(path_parts{1}, name)
+      if ~isempty(regexp(name,'^[a-zA-Z].*','ONCE'))
 	dataset_loc = H5D.open(loc, name);
 	try
 	  sub_data = H5D.read(dataset_loc, ...
@@ -100,7 +103,7 @@ for j_item=0:num_objs-1,
 	sub_data = fix_data(sub_data);
 	
 	if isempty(path_parts)
-	  data = setfield(data, name, sub_data);
+      data.(name) = sub_data;
 	else
 	  data = sub_data;
 	  return
@@ -112,7 +115,7 @@ end
 
 % Check that we managed to load something if path walking is in progress
 if ~isempty(path_parts)
-  error(sprintf('Path "%s" not found in the HDF5 file', full_path));
+  error('Path "%s" not found in the HDF5 file', full_path);
 end
 
 
@@ -121,14 +124,14 @@ function data=fix_data(data)
 
 if isstruct(data)
   fields = fieldnames(data);
-  if length(fields) == 2 & strcmp(fields{1}, 'r') & strcmp(fields{2}, 'i')
-    if isnumeric(data.r) & isnumeric(data.i)
+  if length(fields) == 2 && strcmp(fields{1}, 'r') && strcmp(fields{2}, 'i')
+    if isnumeric(data.r) && isnumeric(data.i)
       data = data.r + 1j*data.i;
     end
   end
 end
 
-if isnumeric(data) & ndims(data) > 1
+if isnumeric(data) && ndims(data) > 1
   % permute dimensions
   data = permute(data, fliplr(1:ndims(data)));
 end

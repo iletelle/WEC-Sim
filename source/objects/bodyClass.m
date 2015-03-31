@@ -47,7 +47,7 @@ classdef bodyClass<handle
             if exist(filename,'file') == 0
                 error('The hdf5 file %s does not exist',file)                
             end
-            name = ['body' num2str(iBod-1)];
+            name = ['body' num2str(iBod)];
             obj.hydroData.properties = h5load(filename, [name '/properties']);
             obj.hydroData.hydro_coeffs = h5load(filename, [name '/hydro_coeffs']);
             obj.hydroData.simulation_parameters = h5load(filename, '/simulation_parameters');
@@ -254,7 +254,7 @@ classdef bodyClass<handle
         % Sets mass for the special cases of body at equilibrium or fixed
             if strcmp(obj.mass, 'equilibrium')
                 obj.massCalcMethod = obj.mass;
-                obj.mass = obj.hydroData.properties.dispVol * rho;
+                obj.mass = obj.hydroData.properties.disp_vol * rho;
             elseif strcmp(obj.mass, 'fixed')
                 obj.massCalcMethod = obj.mass;
                 obj.mass = 999;
