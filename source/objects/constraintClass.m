@@ -59,9 +59,5 @@ classdef constraintClass<handle
         % List constraint info
             fprintf('\n\t***** Constraint Name: %s *****\n',obj.name)
         end
-        
-        function checkProperties(obj)                                  
-        % Check the constraint properties
-        end
     end
 end

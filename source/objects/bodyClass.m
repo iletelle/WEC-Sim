@@ -124,17 +124,12 @@ classdef bodyClass<handle
             fprintf('\tBody Mass                       (kg) = %G \n',obj.mass);
             fprintf('\tBody Diagonal MOI              (kgm2)= [%G,%G,%G]\n',obj.momOfInertia)
         end
-        
-        function checkProperties(obj)                                  
-        % Check the body properties
-        end
     end
     
     methods (Access = 'public') %modify object = F; output = T         
         function fam = forceAddedMass(obj,acc)                         
         % 1. Stores the modified added mass force time history (input)
         % 2. Calculates and outputs the real added mass force time history
-            iBod = obj.bodyNumber;
             fam = zeros(size(acc));
             for i =1:6
                 tmp = zeros(length(acc(:,i)),1);

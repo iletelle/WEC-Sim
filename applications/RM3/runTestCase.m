@@ -59,7 +59,7 @@ fprintf(['Relative_Heave Max Diff = ' num2str(Rel_H_max) ...
 
 
 %% Plot Heave Comparisons
-h=figure('units','normalized','outerposition',[0 0 1 1]);
+figure()%figure('units','normalized','outerposition',[0 0 1 1]);
 % First Row: t=0-400s
 % Second Row: t=350-400s
 

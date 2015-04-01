@@ -63,9 +63,5 @@ classdef ptoClass<handle
             fprintf('\tPTO Stiffness           (N/m;Nm/rad) = %G\n',obj.k)
             fprintf('\tPTO Damping           (Ns/m;Nsm/rad) = %G\n',obj.c)
         end
-        
-        function checkProperties(obj)                                  
-        % Check the PTO properties
-        end
     end    
 end

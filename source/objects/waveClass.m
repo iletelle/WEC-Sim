@@ -113,10 +113,6 @@ classdef waveClass<handle
                     obj.printWaveSpectrumType;
             end
         end
-        
-        function checkProperties(obj)                                  
-        % Check the wave properties
-        end
     end
     
     methods (Access = 'protected')                                     
