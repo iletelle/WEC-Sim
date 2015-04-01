@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 classdef responseClass<handle
-    properties (SetAccess = 'private', GetAccess = 'public')
+    properties (SetAccess = 'public', GetAccess = 'public')
          bodies              = struct()
          ptos                = struct()
          constraints         = struct()

@@ -130,13 +130,14 @@ classdef bodyClass<handle
         function fam = forceAddedMass(obj,acc)                         
         % 1. Stores the modified added mass force time history (input)
         % 2. Calculates and outputs the real added mass force time history
+            iBod = obj.bodyNumber;
             fam = zeros(size(acc));
             for i =1:6
                 tmp = zeros(length(acc(:,i)),1);
                 for j =1:6
-                    iam = obj.hydroForce.fAddedMass(i,j);
-                    iacc = acc(:,j);
-                    tmp = tmp + iacc * iam;
+                    jj = (iBod-1)*6+j;
+                    iam = obj.hydroForce.fAddedMass(i,jj);
+                    tmp = tmp + acc(:,j) .* iam;
                 end
                 fam(:,i) = tmp;
             end

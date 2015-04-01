@@ -99,8 +99,6 @@ if simu.rampT == 10e-8; simu.rampT = 0; end
 
 for iBod = 1:simu.numWecBodies
     body(iBod).restoreMassMatrix
-%     body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
-%     output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
 end; clear iBod
 
 
@@ -135,10 +133,18 @@ end
 output = responseClass(bodiesOutput,ptosOutput,constraintsOutput);
 clear bodiesOutput ptosOutput constraintsOutput
 
+for iBod = 1:simu.numWecBodies
+%     body(iBod).storeForceAddedMass(output.bodies(iBod).forceAddedMass)
+    output.bodies(iBod).forceTotal = output.bodies(iBod).forceTotal - output.bodies(iBod).forceAddedMass;
+    output.bodies(iBod).forceAddedMass = body(iBod).forceAddedMass(output.bodies(iBod).acceleration);
+    output.bodies(iBod).forceTotal = output.bodies(iBod).forceTotal + output.bodies(iBod).forceAddedMass;
+end; clear iBod
+
 % User Defined Post-Processing
 if exist('userDefinedFunctions.m','file') == 2
     userDefinedFunctions;                
 end
+
 
 clear ans; toc; 
 diary off; movefile('simulation.log',simu.logFile)
