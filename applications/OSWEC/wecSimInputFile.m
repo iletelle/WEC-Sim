@@ -1,7 +1,8 @@
 %% Simulation Data
 simu = simulationClass();
-simu.simMechanicsFile = 'OSWEC.slx';        % Specify Simulink Model File
-% simu.mode = 'normal';                       % Specify Simulation Mode ('normal','accelerator','rapid-accelerator')
+simu.simMechanicsFile = 'OSWEC.slx';          % Specify Simulink Model File
+% simu.mode = 'normal';                       % Specify Simulation Mode 
+%                              ('normal','accelerator','rapid-accelerator')
 % simu.explorer='on';                         % Turn SimMechanics Explorer (on/off)
 % simu.startTime = 0;                         % Simulation Start Time [s]
 simu.endTime=400;
