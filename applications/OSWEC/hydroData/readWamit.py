@@ -14,8 +14,10 @@ print w.data[0].num_bodies
 for i in xrange(w.data[0].num_bodies):
 	w.data[i].calc_irf()
 	w.data[i].calc_ss()
-	w.data[i].plot_irf([[0,0],[2,2]]	)
-	w.data[i].plot_am_rd([[0,0],[2,2]])
+
+# Plot hydrodynamic coefficients for the flap (body 0) only
+w.data[0].plot_irf([[0,0],[2,2]])
+w.data[0].plot_am_rd([[0,0],[2,2]])
 
 # Save the data in HDF5 format
 hd.write_hdf5(w.data,w.files['hdf5'])
