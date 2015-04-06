@@ -102,7 +102,7 @@ str2=['at time = ' num2str(org.time(B2_H_I)) 's'];
 a=text(10,1.5,str1);set(a,'FontSize',12)
 a=text(10,1.2,str2);set(a,'FontSize',12)
 xlim([0 400])
-ylim([-0.4 0.4])
+ylim([-2 2])
 
 subplot(2,3,5)
 m=plot(org.time(find(org.time==350):end),...
@@ -114,7 +114,7 @@ set(m(1),'LineWidth',a)
 xlabel('time(s)')
 ylabel('Heave(m)')
 xlim([350 400])
-ylim([-0.4 0.4])
+ylim([-2 2])
 
 
 %Third Column: Relative Heave
